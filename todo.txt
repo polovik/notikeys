@@ -1,0 +1,2 @@
+1. Store plugin id in json files.
+2. Write article about creating plugins

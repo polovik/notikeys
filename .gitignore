@@ -19,3 +19,10 @@
 *.exe
 *.out
 *.app
+
+# Temporary folders during building
+build-*-Debug
+build-*-Release
+
+# Qt creator's temp file
+*.pro.user*

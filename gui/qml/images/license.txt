@@ -1,0 +1,9 @@
+File "disconnect.png" was obtained from http://findicons.com/icon/26206/disconnect
+File "connect.png" was obtained from http://findicons.com/icon/26212/connect
+Thanks to Ruby Software
+
+File "settings.png" was obtained from http://findicons.com/icon/238220/application_x_desktop
+Thanks to Oxygen Team
+
+File "initialization.gif" was obtained from http://all-free-download.com/free-icon/icons-sets/loading_animated_gif_icons_pack_120901.html
+Thanks to Benjamin

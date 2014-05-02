@@ -8,12 +8,15 @@ const QString fieldTitle = "name";
 const QString fieldVersion = "version";
 const QString fieldDescription = "description";
 const QString fieldDependencies = "dependencies";
+const QString fieldID = "UID";
 }
 
 class PluginInterface
 {
 public:
     virtual ~PluginInterface() {}
+    virtual QImage buttonImage() const = 0;
+    virtual QByteArray settingsScreenQml() const = 0;
 };
 
 

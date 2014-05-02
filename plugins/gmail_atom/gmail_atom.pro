@@ -12,3 +12,6 @@ OTHER_FILES += \
     AccountSettings.qml \
     gmail_atom.json
 
+RESOURCES += \
+    gmail_atom.qrc
+

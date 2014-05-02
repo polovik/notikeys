@@ -200,11 +200,21 @@ Rectangle {
             border.color: "black"
             border.width: 1
             radius: 10
+            property string pluginID: ""
+            Image {
+                id: pluginLogo
+            }
+
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
+                    button0.pluginID = "1"
                     console.log("Button #0 is pressed")
                 }
+            }
+            onPluginIDChanged: {
+                console.log("Button #0. ID: " + pluginID)
+                pluginLogo.source = "image://pluginLogo/" + pluginID
             }
         }
         Rectangle {
@@ -243,5 +253,9 @@ Rectangle {
                 }
             }
         }
+    }
+
+    Component.onCompleted: {
+        console.log("Start configuration of GMailAtom plugin")
     }
 }

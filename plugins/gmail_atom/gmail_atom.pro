@@ -9,5 +9,6 @@ TARGET        = $$qtLibraryTarget(gmail_atom)
 DESTDIR       = ../../build_plugins/gmail_atom
 
 OTHER_FILES += \
-    AccountSettings.qml
+    AccountSettings.qml \
+    gmail_atom.json
 

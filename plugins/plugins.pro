@@ -1,2 +1,4 @@
+DEFINES       += QT_DISABLE_DEPRECATED_BEFORE=0x050100
+
 TEMPLATE      = subdirs
 SUBDIRS       = gmail_atom

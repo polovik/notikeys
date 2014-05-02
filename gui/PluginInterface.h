@@ -3,11 +3,17 @@
 
 #include <QString>
 
+namespace NS_PLUGIN_INFO {
+const QString fieldTitle = "name";
+const QString fieldVersion = "version";
+const QString fieldDescription = "description";
+const QString fieldDependencies = "dependencies";
+}
+
 class PluginInterface
 {
 public:
     virtual ~PluginInterface() {}
-    virtual QString title() = 0;
 };
 
 

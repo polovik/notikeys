@@ -12,7 +12,6 @@ class GmailAtom : public QObject, PluginInterface
     Q_INTERFACES(PluginInterface)
 
 public:
-    QString title();
 };
 
 #endif // GMAILATOM_H

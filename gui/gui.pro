@@ -1,3 +1,5 @@
+DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x050100
+
 # Add more folders to ship with the application, here
 folder_01.source = qml
 folder_01.target =

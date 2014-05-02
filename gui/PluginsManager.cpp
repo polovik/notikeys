@@ -2,6 +2,8 @@
 #include <QDir>
 #include <QPluginLoader>
 #include <QApplication>
+#include <QJsonObject>
+#include <QJsonArray>
 #include "PluginsManager.h"
 #include "PluginInterface.h"
 
@@ -30,15 +32,23 @@ bool PluginsManager::loadPlugins()
     }
 
     qDebug() << "Load plugins from folder" << pluginsDir.absolutePath();
-    foreach (QString fileName, pluginsDir.entryList(QDir::Files)) {
-        QPluginLoader pluginLoader(pluginsDir.absoluteFilePath(fileName));
-        QObject *pluginInstance = pluginLoader.instance();
-        if (pluginInstance) {
-            PluginInterface *plugin = qobject_cast<PluginInterface *>(pluginInstance);
-            if (plugin) {
-                qDebug() << "Plugin" << plugin->title() << "has been successfully loaded";
-            } else {
-                qWarning() << "Plugin" << fileName << "has unknown interface";
+    foreach (QString folder, pluginsDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
+        QDir pluginDir(pluginsDir.absoluteFilePath(folder));
+        foreach (QString fileName, pluginDir.entryList(QDir::Files)) {
+            QPluginLoader pluginLoader(pluginDir.absoluteFilePath(fileName));
+            const QJsonObject& metaData = pluginLoader.metaData().value("MetaData").toObject();
+            qDebug() << "Plugin info: Title:" << metaData.value(NS_PLUGIN_INFO::fieldTitle).toString()
+                     << "Version:" << metaData.value(NS_PLUGIN_INFO::fieldVersion).toString()
+                     << "Description:" << metaData.value(NS_PLUGIN_INFO::fieldDescription).toString()
+                     << "Dependencies count:" << metaData.value(NS_PLUGIN_INFO::fieldDependencies).toArray().size();
+            QObject *pluginInstance = pluginLoader.instance();
+            if (pluginInstance) {
+                PluginInterface *plugin = qobject_cast<PluginInterface *>(pluginInstance);
+                if (plugin) {
+                    qDebug() << "Plugin" << metaData.value(NS_PLUGIN_INFO::fieldTitle).toString() << "has been successfully loaded";
+                } else {
+                    qWarning() << "Plugin" << fileName << "has unknown interface";
+                }
             }
         }
     }

@@ -186,6 +186,84 @@ Rectangle {
                 }
             }
         }
+
+        Item {
+            id: settingsHeader
+            anchors.fill: parent
+            anchors.bottomMargin: parent.height * 0.8
+            enabled: false
+            focus: false
+            visible: false
+            property string pluginName: ""
+            property var mainAreaObject: null
+
+            //  Move popupItem to top of Z stack. Grab focus and enable grabing mouse events
+            function makeVisible() {
+                z = parent.z + 1
+                enabled = true
+                focus = true
+                visible = true
+            }
+
+            //  Hide popupItem and move it to back of all components. Release focus and grabing mouse events
+            function makeInvisible() {
+                z = 0
+                enabled = false
+                focus = false
+                visible = false
+            }
+
+            Rectangle {
+                id: buttonBack
+                anchors.left: parent.left
+                anchors.top: parent.top
+                width: parent.width * 0.2
+                height: parent.height
+                color: "palegreen"
+                Image {
+                    id: imagePrevious
+                    anchors.left: parent.left
+                    anchors.leftMargin: parent.width * 0.05
+                    anchors.verticalCenter: parent.verticalCenter
+                    height: parent.height * 0.5
+                    fillMode: Image.PreserveAspectFit
+                    source: "images/previous.png"
+                }
+                Text {
+                    anchors.left: imagePrevious.right
+                    anchors.right: parent.right
+                    anchors.verticalCenter: parent.verticalCenter
+                    verticalAlignment: Text.AlignVCenter
+                    horizontalAlignment: Text.AlignHCenter
+                    text: qsTr("Back")
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: {
+                        console.log("Back is pressed")
+                        settingsHeader.makeInvisible()
+                        if (settingsHeader.mainAreaObject !== null)
+                            settingsHeader.mainAreaObject.destroy()
+                    }
+                }
+            }
+
+            Rectangle {
+                anchors.left: buttonBack.right
+                anchors.top: parent.top
+                anchors.right: parent.right
+                anchors.bottom: buttonBack.bottom
+                color: "ghostwhite"
+                Text {
+                    id: screenTitle
+                    anchors.fill: parent
+                    verticalAlignment: Text.AlignVCenter
+                    horizontalAlignment: Text.AlignHCenter
+                    text: settingsHeader.pluginName
+                }
+            }
+        }
+
         property int buttonOffset: width * 0.1
         property int buttonWidth: (width - buttonOffset * 4) / 3
         Rectangle {
@@ -211,14 +289,18 @@ Rectangle {
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
-                    button0.pluginID = "1"
+                    var uid = "1"
+                    button0.pluginID = uid
                     console.log("Button #0 is pressed")
-                    var path = PluginsManager.getSettingsScreenPath("1")
+                    var path = PluginsManager.getSettingsScreenPath(uid)
                     var component = Qt.createComponent("file:///" + path);
                     if (component.status === Component.Ready) {
-                        var settingsScreen = component.createObject(mainScreen);
-                        settingsScreen.anchors.fill = mainScreen
-                        settingsScreen.z = 20
+                        var settingsScreen = component.createObject(screenConnected);
+                        settingsScreen.anchors.fill = screenConnected
+                        settingsScreen.z = screenConnected.z + 1
+                        settingsHeader.pluginName = PluginsManager.getTitle(uid)
+                        settingsHeader.mainAreaObject = settingsScreen
+                        settingsHeader.makeVisible()
                     }
                 }
             }

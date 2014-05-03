@@ -118,6 +118,20 @@ QString PluginsManager::getSettingsScreenPath(QString uid) const
     return fi.absoluteFilePath();
 }
 
+QString PluginsManager::getTitle(QString uid) const
+{
+    if (!m_plugins.contains(uid)) {
+        qCritical() << "Request to unloaded plugin" << uid;
+        Q_ASSERT(false);
+        return "";
+    }
+
+    QPluginLoader pluginLoader(m_plugins.value(uid));
+    const QJsonObject& metaData = pluginLoader.metaData().value("MetaData").toObject();
+    QString title = metaData.value(NS_PLUGIN_INFO::fieldTitle).toString();
+    return title;
+}
+
 PluginInterface *PluginsManager::pluginInterface(QString uid) const
 {
     if (!m_plugins.contains(uid)) {

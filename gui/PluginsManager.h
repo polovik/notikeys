@@ -19,6 +19,7 @@ signals:
 public slots:
     bool loadPlugins();
     QString getSettingsScreenPath(QString uid) const;
+    QString getTitle(QString uid) const;
 
 private:
     PluginInterface *pluginInterface(QString uid) const;

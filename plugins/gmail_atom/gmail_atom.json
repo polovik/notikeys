@@ -1,7 +1,9 @@
 {
+    "UID": "1",
     "name": "GmailAtom",
     "version": "0.1",
     "description": "Check new e-mails on Google mail via Atom feed",
     "dependencies": [],
-    "UID": "1"
+    "logo": "gmail.png",
+    "settings": "AccountSettings.qml"
 }

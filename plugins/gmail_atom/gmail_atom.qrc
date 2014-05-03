@@ -1,6 +1,0 @@
-<RCC>
-    <qresource prefix="/">
-        <file>AccountSettings.qml</file>
-        <file>gmail.png</file>
-    </qresource>
-</RCC>

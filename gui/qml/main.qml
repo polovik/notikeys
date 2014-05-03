@@ -4,8 +4,8 @@ import QtQuick.Controls.Styles 1.0
 
 Rectangle {
     id: mainScreen
-    width: 250
-    height: 100
+    width: 500
+    height: 200
 
     state: "INIT"
     states: [
@@ -203,6 +203,9 @@ Rectangle {
             property string pluginID: ""
             Image {
                 id: pluginLogo
+                anchors.fill: parent
+                anchors.centerIn: parent
+                fillMode: Image.PreserveAspectFit
             }
 
             MouseArea {
@@ -210,10 +213,16 @@ Rectangle {
                 onClicked: {
                     button0.pluginID = "1"
                     console.log("Button #0 is pressed")
+                    var path = PluginsManager.getSettingsScreenPath("1")
+                    var component = Qt.createComponent("file:///" + path);
+                    if (component.status === Component.Ready) {
+                        var settingsScreen = component.createObject(mainScreen);
+                        settingsScreen.anchors.fill = mainScreen
+                        settingsScreen.z = 20
+                    }
                 }
             }
             onPluginIDChanged: {
-                console.log("Button #0. ID: " + pluginID)
                 pluginLogo.source = "image://pluginLogo/" + pluginID
             }
         }
@@ -256,6 +265,5 @@ Rectangle {
     }
 
     Component.onCompleted: {
-        console.log("Start configuration of GMailAtom plugin")
     }
 }

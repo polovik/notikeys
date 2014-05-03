@@ -5,6 +5,7 @@ Rectangle {
     id: accountSettingsScreen
     width: 500
     height: 200
+    anchors.topMargin: parent.height * 0.1
 
     Rectangle {
         id: buttonBack
@@ -20,7 +21,7 @@ Rectangle {
             anchors.verticalCenter: parent.verticalCenter
             height: parent.height * 0.5
             fillMode: Image.PreserveAspectFit
-            source: "previous.png"
+//            source: "previous.png"
         }
         Text {
             anchors.left: imagePrevious.right

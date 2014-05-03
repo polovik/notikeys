@@ -12,6 +12,14 @@ OTHER_FILES += \
     AccountSettings.qml \
     gmail_atom.json
 
-RESOURCES += \
-    gmail_atom.qrc
+settingsSource = $$PWD/AccountSettings.qml
+logoSource = $$PWD/gmail.png
+resourcesTarget = $$DESTDIR
 
+win32 {
+    settingsSource = $$replace(settingsSource, /, \\)
+    logoSource = $$replace(logoSource, /, \\)
+    resourcesTarget = $$replace(resourcesTarget, /, \\)
+    system(copy /Y /V $$settingsSource $$resourcesTarget)
+    system(copy /Y /V $$logoSource $$resourcesTarget)
+}

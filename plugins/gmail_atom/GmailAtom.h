@@ -12,8 +12,6 @@ class GmailAtom : public QObject, PluginInterface
     Q_INTERFACES(PluginInterface)
 
 public:
-    QImage buttonImage() const;
-    QByteArray settingsScreenQml() const;
 };
 
 #endif // GMAILATOM_H

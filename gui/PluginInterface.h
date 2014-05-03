@@ -9,14 +9,14 @@ const QString fieldVersion = "version";
 const QString fieldDescription = "description";
 const QString fieldDependencies = "dependencies";
 const QString fieldID = "UID";
+const QString fieldLogoFile = "logo";
+const QString fieldSettingsFile = "settings";
 }
 
 class PluginInterface
 {
 public:
     virtual ~PluginInterface() {}
-    virtual QImage buttonImage() const = 0;
-    virtual QByteArray settingsScreenQml() const = 0;
 };
 
 

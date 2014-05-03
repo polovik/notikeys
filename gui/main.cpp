@@ -7,14 +7,10 @@
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
+    QtQuick2ApplicationViewer viewer;
 
     PluginsManager pluginsManager;
     pluginsManager.loadPlugins();
-
-    QtQuick2ApplicationViewer viewer;
-
-//    ContentManager *manager = new ContentManager;
-//    manager->setObjectName("ContentManager");
     viewer.rootContext()->setContextProperty("PluginsManager", &pluginsManager);
 
     QQmlImageProviderBase *imageProvider = new PluginsImageProvider(&pluginsManager);

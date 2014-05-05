@@ -5,3 +5,4 @@
 - validate mail address: must contain @ and domen
 4. How to store account's authentication information? Provide common interface for plugins
 Store all settings on device's EEPROM/Flash?
+5. Fix possibility to press hidden buttons

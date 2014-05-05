@@ -284,16 +284,19 @@ Rectangle {
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
-                    var uid = "1"
-                    button0.pluginID = uid
                     console.log("Button #0 is pressed")
-                    var path = PluginsManager.getSettingsScreenPath(uid)
+                    if (button0.pluginID.length === 0) {
+                        var uid = "1"
+                        button0.pluginID = uid
+                        return
+                    }
+                    var path = PluginsManager.getSettingsScreenPath(button0.pluginID)
                     var component = Qt.createComponent("file:///" + path);
                     if (component.status === Component.Ready) {
                         var settingsScreen = component.createObject(screenConnected);
                         settingsScreen.anchors.fill = screenConnected
                         settingsScreen.z = screenConnected.z + 1
-                        settingsHeader.pluginName = PluginsManager.getTitle(uid)
+                        settingsHeader.pluginName = PluginsManager.getTitle(button0.pluginID)
                         settingsHeader.mainAreaObject = settingsScreen
                         settingsHeader.makeVisible()
                     }

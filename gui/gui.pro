@@ -17,7 +17,8 @@ QT += widgets
 DESTDIR = ../build
 
 SOURCES += main.cpp \
-    PluginsManager.cpp
+    PluginsManager.cpp \
+    Settings.cpp
 
 # Installation path
 # target.path =
@@ -28,4 +29,5 @@ qtcAddDeployment()
 
 HEADERS += \
     PluginsManager.h \
-    PluginInterface.h
+    PluginInterface.h \
+    Settings.h

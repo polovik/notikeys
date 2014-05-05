@@ -3,9 +3,9 @@ import QtQuick.Controls 1.0
 
 Rectangle {
     id: accountSettingsScreen
-    width: 500
+    width: 500 // define size of screen for debug and preview with qmlscene
     height: 200
-    anchors.topMargin: parent.height * 0.2
+    anchors.topMargin: parent.height * 0.2 // Make offset on top for display header
 
     Text {
         id: labelLogin
@@ -48,7 +48,7 @@ Rectangle {
         anchors.verticalCenter: labelPassword.verticalCenter
         width: fieldLogin.width
         height: fieldLogin.height
-        echoMode: TextInput.PasswordEchoOnEdit
+        echoMode: TextInput.Password
     }
 
     Text {
@@ -87,9 +87,33 @@ Rectangle {
 
     Component.onCompleted: {
         console.log("Start configuration of GMailAtom plugin")
+        var account = Settings.get("GmailAtom/account")
+        fieldLogin.text = account
+        var strInterval = Settings.get("GmailAtom/pollingInterval")
+        if (strInterval.length === 0)
+            strInterval = 60
+        var interval = parseInt(strInterval)
+        if (interval > 99) {
+            spinBoxPollingInterval.pollPerSeconds = false
+            spinBoxPollingInterval.value = interval / 60
+            spinBoxPollingInterval.suffix = qsTr("min")
+        } else {
+            spinBoxPollingInterval.pollPerSeconds = true
+            spinBoxPollingInterval.value = interval
+            spinBoxPollingInterval.suffix = qsTr("sec")
+        }
     }
 
     Component.onDestruction: {
         console.log("Finish configuration of GMailAtom plugin")
+        if ((Settings !== null) && (fieldLogin.text !== null))
+            Settings.set("GmailAtom/account", fieldLogin.text)
+        if ((Settings !== null) && (fieldPassword.text !== null) && (fieldPassword.text.length > 0))
+            Settings.set("GmailAtom/password", fieldPassword.text)
+        var interval = spinBoxPollingInterval.value
+        if (spinBoxPollingInterval.pollPerSeconds === false)
+            interval = interval * 60
+        if (Settings !== null)
+            Settings.set("GmailAtom/pollingInterval", interval)
     }
 }

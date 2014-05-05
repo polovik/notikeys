@@ -28,6 +28,8 @@ Rectangle {
         anchors.rightMargin: parent.width * 0.05
         anchors.verticalCenter: labelLogin.verticalCenter
         height: parent.height * 0.15
+        // http://davidcel.is/blog/2012/09/06/stop-validating-email-addresses-with-regex/
+        validator: RegExpValidator { regExp: /.+@.+\..+/i; }
     }
 
     Text {

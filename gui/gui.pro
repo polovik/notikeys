@@ -2,10 +2,8 @@ DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x050100
 
 # Add more folders to ship with the application, here
 folder_01.source = qml
-folder_01.target =
-#plugins.source = ../build_plugins/*.dll
-#plugins.target = plugins
-DEPLOYMENTFOLDERS = folder_01 #plugins
+folder_01.target = ../build
+DEPLOYMENTFOLDERS = folder_01
 
 # Additional import path used to resolve QML modules in Creator's code model
 QML_IMPORT_PATH =
@@ -16,8 +14,8 @@ QML_IMPORT_PATH =
 # MOBILITY +=
 
 QT += widgets
+DESTDIR = ../build
 
-# The .cpp file which was generated for your project. Feel free to hack it.
 SOURCES += main.cpp \
     PluginsManager.cpp
 

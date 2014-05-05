@@ -12,31 +12,28 @@ Rectangle {
         State {
             name: "INIT"
             PropertyChanges { target: screenInitialization; x: 0; z: 10}
-            PropertyChanges { target: screenDisconnected; x: 0; z: 1}
+            PropertyChanges { target: screenDisconnected; x: 0; z: 1; deviceConnected: false}
             PropertyChanges { target: screenConnected; x: 0; z: 1}
         },
         State {
             name: "DISCONNECTED"
             PropertyChanges { target: screenInitialization; x: 0; z: 1}
-            PropertyChanges { target: screenDisconnected; x: 0; z: 10}
+            PropertyChanges { target: screenDisconnected; x: 0; z: 10; deviceConnected: false }
             PropertyChanges { target: screenConnected; x: 0; z: 1}
-        },
-        State {
-            name: "CONNECTED"
-            extend: "DISCONNECTED"
         },
         State {
             name: "ACTIVE"
             PropertyChanges { target: screenInitialization; x: 0; z: 1}
-            PropertyChanges { target: screenDisconnected; x: width ; z: 1}
+            PropertyChanges { target: screenDisconnected; x: width; z: 1; deviceConnected: true }
             PropertyChanges { target: screenConnected; z: 10}
         }
     ]
     transitions: [
         Transition {
-            from: "CONNECTED"
+            from: "DISCONNECTED"
             to: "ACTIVE"
             SequentialAnimation {
+                PauseAnimation  { duration: 500 }
                 NumberAnimation { target: screenDisconnected; properties: "x"; easing.type: Easing.InBack; duration: 500 }
                 NumberAnimation { targets: [screenConnected, screenDisconnected]; property: "z" }
             }
@@ -80,11 +77,12 @@ Rectangle {
         y: 0
         width: parent.width
         height: parent.height
+        property bool deviceConnected: false
         color: {
-            if (mainScreen.state === "DISCONNECTED")
-                return "#ff9807"
-            else
+            if (deviceConnected)
                 return "#41c445"
+            else
+                return "#ff9807"
         }
         Image {
             id: imageDisconnected
@@ -94,10 +92,10 @@ Rectangle {
             width: parent.width * 0.3
             fillMode: Image.PreserveAspectFit
             source: {
-                if (mainScreen.state === "DISCONNECTED")
-                    return "images/disconnect.png"
-                else
+                if (screenDisconnected.deviceConnected)
                     return "images/connect.png"
+                else
+                    return "images/disconnect.png"
             }
         }
         Text {
@@ -107,19 +105,16 @@ Rectangle {
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignHCenter
             text: {
-                if (mainScreen.state === "DISCONNECTED")
-                    return qsTr("Notikeys is disconnected.\nPlug it in USB port")
-                else
+                if (screenDisconnected.deviceConnected)
                     return qsTr("Notikeys is connected!")
+                else
+                    return qsTr("Notikeys is disconnected.\nPlug it in USB port")
             }
         }
         MouseArea {
             anchors.fill: parent
             onClicked: {
-                if (mainScreen.state === "DISCONNECTED")
-                    mainScreen.state = "CONNECTED"
-                else
-                    mainScreen.state = "ACTIVE"
+                mainScreen.state = "ACTIVE"
             }
         }
     }

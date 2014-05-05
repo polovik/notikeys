@@ -23,7 +23,7 @@
 # Temporary folders during building
 build-*-Debug
 build-*-Release
-/build_plugins
+/build
 
 # Qt creator's temp file
 *.pro.user*

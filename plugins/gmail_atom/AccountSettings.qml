@@ -7,6 +7,30 @@ Rectangle {
     height: 200
     anchors.topMargin: parent.height * 0.2 // Make offset on top for display header
 
+    state: "INIT"
+    states: [
+        State {
+            name: "INIT"
+            PropertyChanges { target: rectStatus; color: "brown" }
+            PropertyChanges { target: labelStatus; color: "white"; text: qsTr("Feel account's data") }
+        },
+        State {
+            name: "ADDRESS_INVALID"
+            PropertyChanges { target: rectStatus; color: "red" }
+            PropertyChanges { target: labelStatus; color: "white"; text: qsTr("Format of e-mail should be: username@domain") }
+        },
+        State {
+            name: "ACCOUNT_UNKNOWN"
+            PropertyChanges { target: rectStatus; color: "yellow" }
+            PropertyChanges { target: labelStatus; color: "white"; text: qsTr("Unknown account: verify account's data") }
+        },
+        State {
+            name: "ACCOUNT_VALID"
+            PropertyChanges { target: rectStatus; color: "green" }
+            PropertyChanges { target: labelStatus; color: "white"; text: qsTr("Valid") }
+        }
+    ]
+
     Text {
         id: labelLogin
         anchors.left: parent.left
@@ -28,8 +52,19 @@ Rectangle {
         anchors.rightMargin: parent.width * 0.05
         anchors.verticalCenter: labelLogin.verticalCenter
         height: parent.height * 0.15
+        focus: true
         // http://davidcel.is/blog/2012/09/06/stop-validating-email-addresses-with-regex/
-        validator: RegExpValidator { regExp: /.+@.+\..+/i; }
+        // Format of e-mail should be: username@domain
+        validator: RegExpValidator { regExp: /.+@.+\..+/i }
+        onTextChanged: {
+            if (acceptableInput) {
+                console.log("format is correct: " + text)
+                if (fieldPassword.text.length > 0)
+                    GmailAtom.verifyAccount(text, fieldPassword.text)
+            } else {
+                accountSettingsScreen.state = "ADDRESS_INVALID"
+            }
+        }
     }
 
     Text {
@@ -51,6 +86,10 @@ Rectangle {
         width: fieldLogin.width
         height: fieldLogin.height
         echoMode: TextInput.Password
+        onTextChanged: {
+            if (fieldLogin.acceptableInput)
+                GmailAtom.verifyAccount(fieldLogin.text, text)
+        }
     }
 
     Text {
@@ -87,10 +126,39 @@ Rectangle {
         }
     }
 
+    Rectangle {
+        id: rectStatus
+        anchors.left: parent.left
+        anchors.leftMargin: parent.width * 0.5
+        anchors.right: fieldPassword.right
+        anchors.verticalCenter: labelPollingInterval.verticalCenter
+        height: labelLogin.height
+        border.color: "black"
+        border.width: 1
+        radius: 10
+    }
+
+    Text {
+        id: labelStatus
+        anchors.fill: rectStatus
+        verticalAlignment: Text.AlignVCenter
+        horizontalAlignment: Text.AlignHCenter
+    }
+
+    function displayAccountStatus(valid, error) {
+        if (valid)
+            accountSettingsScreen.state = "ACCOUNT_VALID"
+        else
+            accountSettingsScreen.state = "ACCOUNT_UNKNOWN"
+    }
+
     Component.onCompleted: {
         console.log("Start configuration of GMailAtom plugin")
+        GmailAtom.accountStatus.connect(displayAccountStatus)
         var account = Settings.get("GmailAtom/account")
         fieldLogin.text = account
+        var psw = Settings.get("GmailAtom/password")
+        fieldPassword.text = psw
         var strInterval = Settings.get("GmailAtom/pollingInterval")
         if (strInterval.length === 0)
             strInterval = 60
@@ -108,6 +176,7 @@ Rectangle {
 
     Component.onDestruction: {
         console.log("Finish configuration of GMailAtom plugin")
+        GmailAtom.accountStatus.disconnect(displayAccountStatus)
         if ((Settings !== null) && (fieldLogin.text !== null))
             Settings.set("GmailAtom/account", fieldLogin.text)
         if ((Settings !== null) && (fieldPassword.text !== null) && (fieldPassword.text.length > 0))

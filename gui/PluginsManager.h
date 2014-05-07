@@ -11,7 +11,7 @@ class PluginsManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit PluginsManager(QObject *parent = 0);
+    explicit PluginsManager(QQmlContext *ctx, QObject *parent = 0);
     const QImage getPluginLogo(QString uid) const;
 
 signals:
@@ -24,6 +24,7 @@ public slots:
 private:
     PluginInterface *pluginInterface(QString uid) const;
     QString pluginDir(QString uid) const;
+    QQmlContext *m_qmlContext;
 
     QMap<QString, QString> m_plugins; // key - UID, value - file path
 };

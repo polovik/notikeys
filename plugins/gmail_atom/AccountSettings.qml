@@ -16,13 +16,13 @@ Rectangle {
         },
         State {
             name: "ADDRESS_INVALID"
-            PropertyChanges { target: rectStatus; color: "red" }
+            PropertyChanges { target: rectStatus; color: "yellow" }
             PropertyChanges { target: labelStatus; color: "white"; text: qsTr("Format of e-mail should be: username@domain") }
         },
         State {
-            name: "ACCOUNT_UNKNOWN"
-            PropertyChanges { target: rectStatus; color: "yellow" }
-            PropertyChanges { target: labelStatus; color: "white"; text: qsTr("Unknown account: verify account's data") }
+            name: "ACCOUNT_ERROR"
+            PropertyChanges { target: rectStatus; color: "red" }
+            PropertyChanges { target: labelStatus; color: "white" }
         },
         State {
             name: "ACCOUNT_VALID"
@@ -61,6 +61,10 @@ Rectangle {
                 console.log("format is correct: " + text)
                 if (fieldPassword.text.length > 0)
                     GmailAtom.verifyAccount(text, fieldPassword.text)
+                else {
+                    accountSettingsScreen.state = "ACCOUNT_ERROR"
+                    labelStatus.text = qsTr("Password is empty")
+                }
             } else {
                 accountSettingsScreen.state = "ADDRESS_INVALID"
             }
@@ -145,16 +149,23 @@ Rectangle {
         horizontalAlignment: Text.AlignHCenter
     }
 
-    function displayAccountStatus(valid, error) {
-        if (valid)
-            accountSettingsScreen.state = "ACCOUNT_VALID"
-        else
-            accountSettingsScreen.state = "ACCOUNT_UNKNOWN"
+    function displayError(err) {
+        accountSettingsScreen.state = "ACCOUNT_ERROR"
+        labelStatus.text = err
+    }
+
+    function displayAccountStatus(newMessagesCount) {
+        accountSettingsScreen.state = "ACCOUNT_VALID"
+        if ((Settings !== null) && (fieldLogin.text !== null))
+            Settings.set("GmailAtom/account", fieldLogin.text)
+        if ((Settings !== null) && (fieldPassword.text !== null) && (fieldPassword.text.length > 0))
+            Settings.set("GmailAtom/password", fieldPassword.text)
     }
 
     Component.onCompleted: {
         console.log("Start configuration of GMailAtom plugin")
-        GmailAtom.accountStatus.connect(displayAccountStatus)
+        GmailAtom.error.connect(displayError)
+        GmailAtom.feedLoaded.connect(displayAccountStatus)
         var account = Settings.get("GmailAtom/account")
         fieldLogin.text = account
         var psw = Settings.get("GmailAtom/password")
@@ -176,11 +187,8 @@ Rectangle {
 
     Component.onDestruction: {
         console.log("Finish configuration of GMailAtom plugin")
-        GmailAtom.accountStatus.disconnect(displayAccountStatus)
-        if ((Settings !== null) && (fieldLogin.text !== null))
-            Settings.set("GmailAtom/account", fieldLogin.text)
-        if ((Settings !== null) && (fieldPassword.text !== null) && (fieldPassword.text.length > 0))
-            Settings.set("GmailAtom/password", fieldPassword.text)
+        GmailAtom.error.disconnect(displayError)
+        GmailAtom.feedLoaded.disconnect(displayAccountStatus)
         var interval = spinBoxPollingInterval.value
         if (spinBoxPollingInterval.pollPerSeconds === false)
             interval = interval * 60

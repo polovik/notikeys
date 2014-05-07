@@ -3,7 +3,15 @@
 
 #include <QObject>
 #include <QtPlugin>
+#include <QQueue>
+#include <QPair>
+#include <QMutex>
 #include <gui/PluginInterface.h>
+
+class QNetworkAccessManager;
+class QNetworkReply;
+class QAuthenticator;
+class QQmlContext;
 
 class GmailAtom : public QObject, PluginInterface
 {
@@ -12,6 +20,29 @@ class GmailAtom : public QObject, PluginInterface
     Q_INTERFACES(PluginInterface)
 
 public:
+    GmailAtom(QObject *parent = 0);
+    ~GmailAtom();
+
+    void loadPlugin();
+    void exportToQML(QQmlContext *context);
+
+public slots:
+    void verifyAccount(const QString &user, const QString &password);
+
+private slots:
+    void provideAuthenication(QNetworkReply *reply, QAuthenticator *ator);
+    void readData(QNetworkReply *reply);
+    void fetchFeed();
+
+private:
+    QNetworkAccessManager *m_manager;
+    QQueue<QPair<QString, QString> > m_queueTestAuth;
+    QPair<QString, QString> m_lastTestAuth;
+    QMutex m_authMutex;
+
+signals:
+    void error(QString description);
+    void feedLoaded(int newMessagesCount);
 };
 
 #endif // GMAILATOM_H

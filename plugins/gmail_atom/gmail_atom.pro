@@ -1,5 +1,7 @@
 TEMPLATE      = lib
 CONFIG        += plugin
+QT            += network qml
+
 INCLUDEPATH   += ../..
 HEADERS       = \
     GmailAtom.h

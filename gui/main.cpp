@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
     app.setOrganizationName("Horns&Hoofs Inc.");
     app.setApplicationName("Notikeys");
 
-    PluginsManager pluginsManager;
+    PluginsManager pluginsManager(viewer.rootContext());
     pluginsManager.loadPlugins();
     viewer.rootContext()->setContextProperty("PluginsManager", &pluginsManager);
 

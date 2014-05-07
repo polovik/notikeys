@@ -5,11 +5,12 @@
 #include <QApplication>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <QQmlContext>
 #include "PluginsManager.h"
 #include "PluginInterface.h"
 
-PluginsManager::PluginsManager(QObject *parent) :
-    QObject(parent)
+PluginsManager::PluginsManager(QQmlContext *ctx, QObject *parent) :
+    QObject(parent), m_qmlContext(ctx)
 {
 }
 
@@ -84,6 +85,8 @@ bool PluginsManager::loadPlugins()
                         continue;
                     }
                     qDebug() << "Plugin" << metaData.value(NS_PLUGIN_INFO::fieldTitle).toString() << "has been successfully loaded";
+                    plugin->loadPlugin();
+                    plugin->exportToQML(m_qmlContext);
                     m_plugins.insert(uid, pluginPath);
                 } else {
                     qWarning() << "Plugin" << fileName << "has unknown interface";

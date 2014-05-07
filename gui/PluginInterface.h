@@ -13,10 +13,14 @@ const QString fieldLogoFile = "logo";
 const QString fieldSettingsFile = "settings";
 }
 
+class QQmlContext;
+
 class PluginInterface
 {
 public:
     virtual ~PluginInterface() {}
+    virtual void loadPlugin() = 0;
+    virtual void exportToQML(QQmlContext *context) = 0;
 };
 
 

@@ -31,3 +31,6 @@ HEADERS += \
     PluginsManager.h \
     PluginInterface.h \
     Settings.h
+
+OTHER_FILES += \
+    qml/PluginSettingsScreen.qml

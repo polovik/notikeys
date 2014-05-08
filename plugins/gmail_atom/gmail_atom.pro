@@ -17,14 +17,17 @@ OTHER_FILES += \
 settingsSource = $$PWD/AccountSettings.qml
 logoSource = $$PWD/gmail.png
 progressSource = $$PWD/checking.gif
+licenseSource = $$PWD/license.txt
 resourcesTarget = $$DESTDIR
 
 win32 {
     settingsSource = $$replace(settingsSource, /, \\)
     logoSource = $$replace(logoSource, /, \\)
     progressSource = $$replace(progressSource, /, \\)
+    licenseSource = $$replace(licenseSource, /, \\)
     resourcesTarget = $$replace(resourcesTarget, /, \\)
     system(copy /Y /V $$settingsSource $$resourcesTarget)
     system(copy /Y /V $$logoSource $$resourcesTarget)
     system(copy /Y /V $$progressSource $$resourcesTarget)
+    system(copy /Y /V $$licenseSource $$resourcesTarget)
 }

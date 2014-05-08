@@ -7,6 +7,7 @@
 #include <QSslConfiguration>
 #include <QQmlContext>
 #include <QTimer>
+#include <QXmlStreamReader>
 #include "GmailAtom.h"
 //#include "gui/Settings.h"
 
@@ -106,8 +107,8 @@ void GmailAtom::readData(QNetworkReply *reply)
             description = reply->errorString();
         emit error(description);
     } else {
-        qDebug() << "Reply:" << data;
-        int newMessagesCount = 0;
+        int newMessagesCount = parseXml(data);
+        qDebug() << "New messages:" << newMessagesCount;
         emit feedLoaded(newMessagesCount);
     }
     m_manager->clearAccessCache();
@@ -117,4 +118,46 @@ void GmailAtom::readData(QNetworkReply *reply)
         QTimer::singleShot(100, this, SLOT(fetchFeed()));
     else
         emit allCredentialsTested(false);
+}
+
+int GmailAtom::parseXml(QByteArray data)
+{
+    //  Load data in reader
+    QXmlStreamReader xml;
+    xml.addData(data);
+
+    //  Read xml elements consequently
+    while (!xml.atEnd()) {
+        QXmlStreamReader::TokenType type;
+        type = xml.readNext();
+
+//        qDebug() << "Type is:" << xml.tokenString();
+//        qDebug() << "Data:" << xml.qualifiedName() << xml.prefix() << xml.name() << xml.namespaceUri();
+
+        if (type != QXmlStreamReader::StartElement)
+            continue;
+
+        if (xml.name() == "fullcount") {
+            type = xml.readNext();
+            if (type != QXmlStreamReader::Characters) {
+                qCritical() << "Incorrect XML structure. Expect count of messages.";
+                return 0;
+            }
+            QString fullcount = xml.text().toString();
+            bool ok = false;
+            int msgCount = fullcount.toInt(&ok);
+            if (!ok) {
+                qCritical() << "Incorrect XML structure. Count of messages must be number.";
+                return 0;
+            }
+            return msgCount;
+        }
+    }
+
+    if (xml.hasError()) {
+        qCritical() << "Error during parsing XML:" << xml.errorString() << xml.lineNumber() << xml.columnNumber() << xml.characterOffset();
+    }
+    qCritical() << "Can't extract count of new messages. XML data:" << data;
+
+    return 0;
 }

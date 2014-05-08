@@ -35,6 +35,8 @@ private slots:
     void fetchFeed();
 
 private:
+    int parseXml(QByteArray data);
+
     QNetworkAccessManager *m_manager;
     QQueue<QPair<QString, QString> > m_queueTestAuth;
     QPair<QString, QString> m_lastTestAuth;

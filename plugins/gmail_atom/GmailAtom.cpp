@@ -99,7 +99,11 @@ void GmailAtom::readData(QNetworkReply *reply)
 
     if (reply->error() != QNetworkReply::NoError) {
         qWarning() << "Reply error" << reply->error() << "Description:" << reply->errorString();
-        QString description = reply->errorString();
+        QString description;
+        if (reply->error() == QNetworkReply::AuthenticationRequiredError)
+            description = tr("The email or password you entered is incorrect");
+        else
+            description = reply->errorString();
         emit error(description);
     } else {
         qDebug() << "Reply:" << data;
@@ -111,4 +115,6 @@ void GmailAtom::readData(QNetworkReply *reply)
 
     if (m_queueTestAuth.count() >= 1)
         QTimer::singleShot(100, this, SLOT(fetchFeed()));
+    else
+        emit allCredentialsTested(false);
 }

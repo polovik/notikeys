@@ -11,23 +11,23 @@ Rectangle {
     states: [
         State {
             name: "INIT"
-            PropertyChanges { target: rectStatus; color: "brown" }
+            PropertyChanges { target: rectStatus; color: "#2a76a5" }
             PropertyChanges { target: labelStatus; color: "white"; text: qsTr("Feel account's data") }
         },
         State {
             name: "ADDRESS_INVALID"
-            PropertyChanges { target: rectStatus; color: "yellow" }
-            PropertyChanges { target: labelStatus; color: "white"; text: qsTr("Format of e-mail should be: username@domain") }
+            PropertyChanges { target: rectStatus; color: "#ffd500" }
+            PropertyChanges { target: labelStatus; color: "#000000"; text: qsTr("Format of e-mail should be: username@domain") }
         },
         State {
             name: "ACCOUNT_ERROR"
-            PropertyChanges { target: rectStatus; color: "red" }
-            PropertyChanges { target: labelStatus; color: "white" }
+            PropertyChanges { target: rectStatus; color: "#ff7171" }
+            PropertyChanges { target: labelStatus; color: "black" }
         },
         State {
             name: "ACCOUNT_VALID"
-            PropertyChanges { target: rectStatus; color: "green" }
-            PropertyChanges { target: labelStatus; color: "white"; text: qsTr("Valid") }
+            PropertyChanges { target: rectStatus; color: "#039103" }
+            PropertyChanges { target: labelStatus; color: "white" }
         }
     ]
 
@@ -38,7 +38,7 @@ Rectangle {
         anchors.top: parent.top
         anchors.topMargin: parent.height * 0.1
         width: parent.width * 0.15
-        height: parent.height * 0.2
+        height: parent.height * 0.15
         verticalAlignment: Text.AlignVCenter
         horizontalAlignment: Text.AlignLeft
         text: qsTr("Login:")
@@ -58,10 +58,10 @@ Rectangle {
         validator: RegExpValidator { regExp: /.+@.+\..+/i }
         onTextChanged: {
             if (acceptableInput) {
-                console.log("format is correct: " + text)
-                if (fieldPassword.text.length > 0)
+                if (fieldPassword.text.length > 0) {
+                    displayChecking(true)
                     GmailAtom.verifyAccount(text, fieldPassword.text)
-                else {
+                } else {
                     accountSettingsScreen.state = "ACCOUNT_ERROR"
                     labelStatus.text = qsTr("Password is empty")
                 }
@@ -91,15 +91,47 @@ Rectangle {
         height: fieldLogin.height
         echoMode: TextInput.Password
         onTextChanged: {
-            if (fieldLogin.acceptableInput)
+            if (fieldLogin.acceptableInput) {
+                displayChecking(true)
                 GmailAtom.verifyAccount(fieldLogin.text, text)
+            }
         }
+    }
+
+    AnimatedImage {
+        id: imageVerifyInProgress
+        anchors.left: labelLogin.left
+        anchors.top: labelPassword.bottom
+        anchors.topMargin: parent.height * 0.1
+        height: labelLogin.height
+        fillMode: Image.PreserveAspectFit
+        source: "checking.gif"
+        visible: false
+    }
+
+    Rectangle {
+        id: rectStatus
+        anchors.left: labelLogin.left
+        anchors.right: fieldLogin.right
+        anchors.top: labelPassword.bottom
+        anchors.topMargin: parent.height * 0.1
+        height: labelLogin.height
+        border.color: "black"
+        border.width: 1
+        radius: 10
+    }
+
+    Text {
+        id: labelStatus
+        anchors.fill: rectStatus
+        verticalAlignment: Text.AlignVCenter
+        horizontalAlignment: Text.AlignHCenter
     }
 
     Text {
         id: labelPollingInterval
         anchors.left: labelLogin.left
-        anchors.top: labelPassword.bottom
+        anchors.top: rectStatus.bottom
         anchors.topMargin: parent.height * 0.1
         height: labelLogin.height
         verticalAlignment: Text.AlignVCenter
@@ -130,23 +162,18 @@ Rectangle {
         }
     }
 
-    Rectangle {
-        id: rectStatus
-        anchors.left: parent.left
-        anchors.leftMargin: parent.width * 0.5
-        anchors.right: fieldPassword.right
-        anchors.verticalCenter: labelPollingInterval.verticalCenter
-        height: labelLogin.height
-        border.color: "black"
-        border.width: 1
-        radius: 10
-    }
-
-    Text {
-        id: labelStatus
-        anchors.fill: rectStatus
-        verticalAlignment: Text.AlignVCenter
-        horizontalAlignment: Text.AlignHCenter
+    function displayChecking(started) {
+        if (started) {
+            imageVerifyInProgress.playing = true
+            imageVerifyInProgress.visible = true
+            rectStatus.anchors.left = imageVerifyInProgress.right
+            rectStatus.anchors.leftMargin = imageVerifyInProgress.width / 2
+        } else {
+            rectStatus.anchors.left = labelLogin.left
+            rectStatus.anchors.leftMargin = 0
+            imageVerifyInProgress.visible = false
+            imageVerifyInProgress.playing = false
+        }
     }
 
     function displayError(err) {
@@ -156,6 +183,7 @@ Rectangle {
 
     function displayAccountStatus(newMessagesCount) {
         accountSettingsScreen.state = "ACCOUNT_VALID"
+        labelStatus.text = qsTr("Valid.") + " New messages: " + newMessagesCount
         if ((Settings !== null) && (fieldLogin.text !== null))
             Settings.set("GmailAtom/account", fieldLogin.text)
         if ((Settings !== null) && (fieldPassword.text !== null) && (fieldPassword.text.length > 0))
@@ -166,6 +194,7 @@ Rectangle {
         console.log("Start configuration of GMailAtom plugin")
         GmailAtom.error.connect(displayError)
         GmailAtom.feedLoaded.connect(displayAccountStatus)
+        GmailAtom.allCredentialsTested.connect(displayChecking)
         var account = Settings.get("GmailAtom/account")
         fieldLogin.text = account
         var psw = Settings.get("GmailAtom/password")
@@ -189,6 +218,7 @@ Rectangle {
         console.log("Finish configuration of GMailAtom plugin")
         GmailAtom.error.disconnect(displayError)
         GmailAtom.feedLoaded.disconnect(displayAccountStatus)
+        GmailAtom.allCredentialsTested.disconnect(displayChecking)
         var interval = spinBoxPollingInterval.value
         if (spinBoxPollingInterval.pollPerSeconds === false)
             interval = interval * 60

@@ -43,6 +43,7 @@ private:
 signals:
     void error(QString description);
     void feedLoaded(int newMessagesCount);
+    void allCredentialsTested(bool inProgress);
 };
 
 #endif // GMAILATOM_H

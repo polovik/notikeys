@@ -5,7 +5,6 @@ Rectangle {
     id: accountSettingsScreen
     width: 500 // define size of screen for debug and preview with qmlscene
     height: 200
-    anchors.topMargin: parent.height * 0.2 // Make offset on top for display header
 
     state: "INIT"
     states: [

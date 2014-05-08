@@ -3,6 +3,7 @@
     "name": "GmailAtom",
     "version": "0.1",
     "description": "Check new e-mails on Google mail via Atom feed",
+    "authors": "Dmitry Valento",
     "dependencies": [],
     "logo": "gmail.png",
     "settings": "AccountSettings.qml"

@@ -26,7 +26,7 @@ Item {
         var component = Qt.createComponent("file:///" + path);
         if (component.status === Component.Ready) {
             var pluginSettings = component.createObject(settingsScreen);
-            pluginSettings.anchors.fill = settingsScreen
+            pluginSettings.anchors.fill = pluginsSettings
             pluginSettings.z = settingsScreen.z + 1
             mainAreaObject = pluginSettings
         }
@@ -98,5 +98,13 @@ Item {
                 text: settingsScreen.pluginName
             }
         }
+    }
+
+    Item {
+        id: pluginsSettings
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: settingsHeader.bottom
+        anchors.bottom: parent.bottom
     }
 }

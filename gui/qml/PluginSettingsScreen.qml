@@ -8,6 +8,7 @@ Item {
     enabled: true
     focus: true
     visible: true
+    property string pluginId: "-1"
     property string pluginName: "PluginName"
     property var mainAreaObject: null
 
@@ -19,11 +20,9 @@ Item {
     }
 
     //  Move popupItem to top of Z stack. Grab focus and enable grabing mouse events
-    function makeVisible(pluginId) {
-        pluginName = PluginsManager.getTitle(pluginId)
+    function makeVisible(settingsScreenPath) {
         console.log("Open settings for plugin \"" + pluginName + "\". ID: " + pluginId)
-        var path = PluginsManager.getSettingsScreenPath(pluginId)
-        var component = Qt.createComponent("file:///" + path);
+        var component = Qt.createComponent("file:///" + settingsScreenPath);
         if (component.status === Component.Ready) {
             var pluginSettings = component.createObject(settingsScreen);
             pluginSettings.anchors.fill = pluginsSettings

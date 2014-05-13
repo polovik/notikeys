@@ -127,6 +127,7 @@ Rectangle {
         height: parent.height
     }
 
+    property bool viewInactiveButtons: false
     Rectangle {
         id: screenConnected
         x: 0
@@ -171,6 +172,7 @@ Rectangle {
             }
             onCheckedChanged: {
                 console.log("View inactive buttons: " + checked)
+                viewInactiveButtons = checked
             }
         }
         Image {
@@ -192,75 +194,93 @@ Rectangle {
 
         property int buttonOffset: width * 0.1
         property int buttonWidth: (width - buttonOffset * 4) / 3
-        Rectangle {
-            id: button0
+
+        Item {
+            id: pluginsButtonsArea
             anchors.left: parent.left
             anchors.leftMargin: screenConnected.buttonOffset
             anchors.top: parent.top
             anchors.topMargin: (imageSettings.y - screenConnected.buttonWidth) / 2
-            width: screenConnected.buttonWidth
+            width: screenConnected.buttonWidth * 3 + screenConnected.buttonOffset * 2
             height: screenConnected.buttonWidth
-            color: "transparent"
-            border.color: "black"
-            border.width: 1
-            radius: 10
-            property string pluginID: ""
-            Image {
-                id: pluginLogo
-                anchors.fill: parent
-                anchors.centerIn: parent
-                fillMode: Image.PreserveAspectFit
+            Row {
+                //  Display "places" for possible active buttons
+                spacing: screenConnected.buttonOffset
+                Repeater {
+                    model: 3
+                    Rectangle {
+                        width: screenConnected.buttonWidth
+                        height: screenConnected.buttonWidth
+                        color: "transparent"
+                        border.color: "white"
+                        border.width: 1
+                        radius: 10
+                    }
+                }
             }
 
-            MouseArea {
-                anchors.fill: parent
-                onClicked: {
-                    console.log("Button #0 is pressed")
-                    if (button0.pluginID.length === 0) {
-                        var uid = "1"
-                        button0.pluginID = uid
-                        return
+            Row {
+                //  Display buttons for configure plugins and display status of plugins - active or not
+                spacing: screenConnected.buttonOffset
+                Repeater {
+                    model: pluginsModel
+                    //  this model has fields:
+                    //  - uid
+                    //  - name
+                    //  - settingsScreenPath
+                    //  - active
+                    Rectangle {
+                        enabled: {
+                            if (viewInactiveButtons || active)
+                                return true
+                            else
+                                return false
+                        }
+                        visible: {
+                            if (viewInactiveButtons || active)
+                                return true
+                            else
+                                return false
+                        }
+                        width: {
+                            if (viewInactiveButtons || active)
+                                return screenConnected.buttonWidth
+                            else
+                                return 0
+                        }
+                        height: screenConnected.buttonWidth
+                        color: "transparent"
+                        border.color: {
+                            if (active)
+                                return "black"
+                            else
+                                return "white"
+                        }
+                        border.width: {
+                            if (active)
+                                return 2
+                            else
+                                return 1
+                        }
+                        radius: 10
+                        Image {
+                            id: pluginLogo
+                            anchors.fill: parent
+                            anchors.centerIn: parent
+                            fillMode: Image.PreserveAspectFit
+                            source: "image://pluginLogo/" + uid
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: {
+                                console.log("Button #0 is pressed")
+                                screenPluginConfigure.pluginId = uid;
+                                screenPluginConfigure.pluginName = name;
+                                screenPluginConfigure.makeVisible(settingsScreenPath)
+                            }
+                        }
                     }
-                    screenPluginConfigure.makeVisible(button0.pluginID)
-                }
-            }
-            onPluginIDChanged: {
-                pluginLogo.source = "image://pluginLogo/" + pluginID
-            }
-        }
-        Rectangle {
-            id: button1
-            anchors.left: button0.right
-            anchors.leftMargin: button0.anchors.leftMargin
-            anchors.top: button0.top
-            width: button0.width
-            height: button0.height
-            color: button0.color
-            border.color: button0.border.color
-            border.width: button0.border.width
-            radius: button0.radius
-            MouseArea {
-                anchors.fill: parent
-                onClicked: {
-                    console.log("Button #1 is pressed")
-                }
-            }
-        }
-        Rectangle {
-            id: button2
-            anchors.left: button1.right
-            anchors.leftMargin: button0.anchors.leftMargin
-            anchors.top: button0.top
-            width: button0.width
-            height: button0.height
-            color: button0.color
-            border.color: button0.border.color
-            border.width: button0.border.width
-            radius: button0.radius
-            MouseArea {
-                anchors.fill: parent
-                onClicked: {
-                    console.log("Button #2 is pressed")
                 }
             }
         }
@@ -268,5 +288,6 @@ Rectangle {
 
     Component.onCompleted: {
         screenPluginConfigure.makeInvisible()
+        PluginsManager.loadPlugins();
     }
 }

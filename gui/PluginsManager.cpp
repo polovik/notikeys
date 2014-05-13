@@ -22,14 +22,14 @@ const QImage PluginsManager::getPluginLogo(QString uid) const
         return QImage();
     }
 
-    QPluginLoader pluginLoader(m_plugins.value(uid));
-    const QJsonObject& metaData = pluginLoader.metaData().value("MetaData").toObject();
+    PluginInfo *info = m_plugins.value(uid);
+    const QJsonObject& metaData = info->m_metaData;
     QString fileName = metaData.value(NS_PLUGIN_INFO::fieldLogoFile).toString();
 
-    QString dir = pluginDir(uid);
-    QFileInfo fi(QDir(dir), fileName);
+    QFileInfo pluginFile(info->m_absoluteFilePath);
+    QFileInfo fi(pluginFile.absoluteDir(), fileName);
     if (!fi.exists()) {
-        qCritical() << "File" << fileName << "doesn't present in folder" << dir;
+        qCritical() << "File" << fileName << "doesn't present in folder" << pluginFile.absoluteDir();
         Q_ASSERT(false);
         return QImage();
     }
@@ -40,7 +40,7 @@ const QImage PluginsManager::getPluginLogo(QString uid) const
 
 bool PluginsManager::loadPlugins()
 {
-    m_plugins.clear();
+    m_plugins.clear(); // TODO clear each instance of PluginInfo *
     QDir pluginsDir(qApp->applicationDirPath());
     bool dirExist = false;
 #if defined(Q_OS_WIN)
@@ -71,7 +71,8 @@ bool PluginsManager::loadPlugins()
             QPluginLoader pluginLoader(pluginPath);
             const QJsonObject& metaData = pluginLoader.metaData().value("MetaData").toObject();
             QString uid = metaData.value(NS_PLUGIN_INFO::fieldID).toString();
-            qDebug() << "Plugin info: Title:" << metaData.value(NS_PLUGIN_INFO::fieldTitle).toString()
+            QString title = metaData.value(NS_PLUGIN_INFO::fieldTitle).toString();
+            qDebug() << "Plugin info: Title:" << title
                      << "Version:" << metaData.value(NS_PLUGIN_INFO::fieldVersion).toString()
                      << "Description:" << metaData.value(NS_PLUGIN_INFO::fieldDescription).toString()
                      << "Dependencies count:" << metaData.value(NS_PLUGIN_INFO::fieldDependencies).toArray().size()
@@ -87,7 +88,22 @@ bool PluginsManager::loadPlugins()
                     qDebug() << "Plugin" << metaData.value(NS_PLUGIN_INFO::fieldTitle).toString() << "has been successfully loaded";
                     plugin->loadPlugin();
                     plugin->exportToQML(m_qmlContext);
-                    m_plugins.insert(uid, pluginPath);
+                    QString settingsfileName = metaData.value(NS_PLUGIN_INFO::fieldSettingsFile).toString();
+                    QFileInfo fi(pluginDir, settingsfileName);
+                    if (!fi.exists()) {
+                        qCritical() << "File" << settingsfileName << "doesn't present in folder" << pluginDir;
+                        Q_ASSERT(false);
+                        continue;
+                    }
+                    PluginInfo *info = new PluginInfo();
+                    info->setProperty("active", false);
+                    info->m_plugin = plugin;
+                    info->m_absoluteFilePath = pluginPath;
+                    info->m_uid = uid;
+                    info->m_name = title;
+                    info->m_settingsScreenPath = fi.absoluteFilePath();
+                    info->m_metaData = metaData;
+                    m_plugins.insert(uid, info);
                 } else {
                     qWarning() << "Plugin" << fileName << "has unknown interface";
                 }
@@ -95,82 +111,12 @@ bool PluginsManager::loadPlugins()
         }
     }
 
+    QList<QObject*> pluginsList;
+    foreach (const QString &uid, m_plugins.keys()) {
+        pluginsList.append(m_plugins.value(uid));
+    }
+    m_qmlContext->setContextProperty("pluginsModel", QVariant::fromValue(pluginsList));
     return true;
-}
-
-QString PluginsManager::getSettingsScreenPath(QString uid) const
-{
-    if (!m_plugins.contains(uid)) {
-        qCritical() << "Request to unloaded plugin" << uid;
-        Q_ASSERT(false);
-        return "";
-    }
-
-    QPluginLoader pluginLoader(m_plugins.value(uid));
-    const QJsonObject& metaData = pluginLoader.metaData().value("MetaData").toObject();
-    QString fileName = metaData.value(NS_PLUGIN_INFO::fieldSettingsFile).toString();
-
-    QString dir = pluginDir(uid);
-    QFileInfo fi(QDir(dir), fileName);
-    if (!fi.exists()) {
-        qCritical() << "File" << fileName << "doesn't present in folder" << dir;
-        Q_ASSERT(false);
-        return "";
-    }
-
-    return fi.absoluteFilePath();
-}
-
-QString PluginsManager::getTitle(QString uid) const
-{
-    if (!m_plugins.contains(uid)) {
-        qCritical() << "Request to unloaded plugin" << uid;
-        Q_ASSERT(false);
-        return "";
-    }
-
-    QPluginLoader pluginLoader(m_plugins.value(uid));
-    const QJsonObject& metaData = pluginLoader.metaData().value("MetaData").toObject();
-    QString title = metaData.value(NS_PLUGIN_INFO::fieldTitle).toString();
-    return title;
-}
-
-PluginInterface *PluginsManager::pluginInterface(QString uid) const
-{
-    if (!m_plugins.contains(uid)) {
-        qCritical() << "Request to unloaded plugin" << uid;
-        Q_ASSERT(false);
-        return NULL;
-    }
-
-    QPluginLoader pluginLoader(m_plugins.value(uid));
-    QObject *pluginInstance = pluginLoader.instance();
-    if (!pluginInstance) {
-        qCritical() << "Unknown file was insert in list of plugins:" << m_plugins.value(uid);
-        Q_ASSERT(false);
-        return NULL;
-    }
-
-    PluginInterface *plugin = qobject_cast<PluginInterface *>(pluginInstance);
-    if (!plugin) {
-        qCritical() << "Incorrect plugin was insert in list of plugins:" << m_plugins.value(uid);
-        Q_ASSERT(false);
-        return NULL;
-    }
-
-    return plugin;
-}
-
-QString PluginsManager::pluginDir(QString uid) const
-{
-    if (!m_plugins.contains(uid)) {
-        qCritical() << "Request to unloaded plugin" << uid;
-        Q_ASSERT(false);
-        return "";
-    }
-
-    QFileInfo fi(m_plugins.value(uid));
-    return fi.absolutePath();
 }
 
 //------------------------------------------------------------------------------

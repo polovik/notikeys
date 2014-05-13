@@ -4,8 +4,45 @@
 #include <QObject>
 #include <QMap>
 #include <QQuickImageProvider>
+#include <QJsonObject>
 
 class PluginInterface;
+
+class PluginInfo : public QObject
+{
+    Q_OBJECT
+
+    Q_PROPERTY(QString uid READ uid NOTIFY uidChanged)
+    Q_PROPERTY(QString name READ name)
+    Q_PROPERTY(QString settingsScreenPath READ settingsScreenPath)
+    Q_PROPERTY(bool active READ active WRITE setActive NOTIFY activeChanged)
+
+public:
+    PluginInterface *m_plugin;
+    QString m_absoluteFilePath;
+    QString m_uid;
+    QString m_name;
+    QString m_settingsScreenPath;
+    QJsonObject m_metaData;
+
+signals:
+    void uidChanged(QString uid);
+    void activeChanged(bool active);
+
+private:
+    QString uid() const
+    { return m_uid; }
+    QString name() const
+    { return m_name; }
+    QString settingsScreenPath() const
+    { return m_settingsScreenPath; }
+    bool active() const
+    { return m_active; }
+    void setActive(bool active)
+    { m_active = active; }
+
+    bool m_active;
+};
 
 class PluginsManager : public QObject
 {
@@ -18,15 +55,11 @@ signals:
 
 public slots:
     bool loadPlugins();
-    QString getSettingsScreenPath(QString uid) const;
-    QString getTitle(QString uid) const;
 
 private:
-    PluginInterface *pluginInterface(QString uid) const;
-    QString pluginDir(QString uid) const;
     QQmlContext *m_qmlContext;
 
-    QMap<QString, QString> m_plugins; // key - UID, value - file path
+    QMap<QString, PluginInfo *> m_plugins; // key - UID, value - reference to plugin's description
 };
 
 //------------------------------------------------------------------------------

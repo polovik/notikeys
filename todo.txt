@@ -1,8 +1,0 @@
-x. Store plugin id in json files.
-  2. Write article about creating plugins
-  3. Display tips and advices:
-  - password strenght
-x - validate mail address: must contain @ and domen
-  4. How to store account's authentication information? Provide common interface for plugins
-     Store all settings on device's EEPROM/Flash?
-x 5. Fix possibility to press hidden buttons

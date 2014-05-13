@@ -75,7 +75,6 @@ int main(int argc, char *argv[])
     app.setApplicationName("Notikeys");
 
     PluginsManager pluginsManager(viewer.rootContext());
-    pluginsManager.loadPlugins();
     viewer.rootContext()->setContextProperty("PluginsManager", &pluginsManager);
 
     Settings settings;

@@ -31,3 +31,10 @@ win32 {
     system(copy /Y /V $$progressSource $$resourcesTarget)
     system(copy /Y /V $$licenseSource $$resourcesTarget)
 }
+
+CONFIG(debug, debug|release) {
+    LIBS += -L../../device/debug -ldeviced
+} else {
+    LIBS += -L../../device/release -ldevice
+}
+

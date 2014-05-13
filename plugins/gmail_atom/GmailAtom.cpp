@@ -9,7 +9,7 @@
 #include <QTimer>
 #include <QXmlStreamReader>
 #include "GmailAtom.h"
-//#include "gui/Settings.h"
+#include "device/Settings.h"
 
 GmailAtom::GmailAtom(QObject *parent) : QObject(parent)
 {
@@ -80,10 +80,9 @@ void GmailAtom::provideAuthenication(QNetworkReply *reply, QAuthenticator *ator)
         m_lastTestAuth.first = user;
         m_lastTestAuth.second = pass;
     } else {
-        Q_ASSERT(false);
-//        Settings settings;
-//        user = settings.get("GmailAtom/account");
-//        pass = settings.get("GmailAtom/password");
+        Settings settings;
+        user = settings.get("GmailAtom/account");
+        pass = settings.get("GmailAtom/password");
     }
     qDebug() << "Need Authenticator" << m_queueTestAuth.count();
     ator->setUser(user);

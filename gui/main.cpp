@@ -8,7 +8,7 @@
 #include <QtGui/QGuiApplication>
 #include "qtquick2applicationviewer.h"
 #include "PluginsManager.h"
-#include "Settings.h"
+#include "../device/Settings.h"
 
 static QTextCodec *logCodec = NULL;
 static FILE *logStream = NULL;

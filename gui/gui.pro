@@ -17,8 +17,7 @@ QT += widgets
 DESTDIR = ../build
 
 SOURCES += main.cpp \
-    PluginsManager.cpp \
-    Settings.cpp
+    PluginsManager.cpp
 
 # Installation path
 # target.path =
@@ -29,8 +28,13 @@ qtcAddDeployment()
 
 HEADERS += \
     PluginsManager.h \
-    PluginInterface.h \
-    Settings.h
+    PluginInterface.h
 
 OTHER_FILES += \
     qml/PluginSettingsScreen.qml
+
+CONFIG(debug, debug|release) {
+    LIBS += -L../device/debug -ldeviced
+} else {
+    LIBS += -L../device/release -ldevice
+}

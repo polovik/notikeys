@@ -21,6 +21,8 @@ public:
     virtual ~PluginInterface() {}
     virtual void loadPlugin() = 0;
     virtual void exportToQML(QQmlContext *context) = 0;
+    virtual void start() = 0;
+    virtual void stop() = 0;
 };
 
 

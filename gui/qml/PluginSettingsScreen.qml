@@ -11,6 +11,7 @@ Item {
     property string pluginId: "-1"
     property string pluginName: "PluginName"
     property var mainAreaObject: null
+    signal closed()
 
     //  Absorb clicks outside the buttons
     MouseArea {
@@ -43,6 +44,7 @@ Item {
         visible = false
         if (mainAreaObject !== null)
             mainAreaObject.destroy()
+        settingsScreen.closed()
     }
 
     Item {

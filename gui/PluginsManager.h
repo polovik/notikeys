@@ -18,6 +18,11 @@ class PluginInfo : public QObject
     Q_PROPERTY(bool active READ active WRITE setActive NOTIFY activeChanged)
 
 public:
+    bool active() const
+    { return m_active; }
+    void setActive(bool active)
+    { m_active = active; }
+
     PluginInterface *m_plugin;
     QString m_absoluteFilePath;
     QString m_uid;
@@ -36,10 +41,6 @@ private:
     { return m_name; }
     QString settingsScreenPath() const
     { return m_settingsScreenPath; }
-    bool active() const
-    { return m_active; }
-    void setActive(bool active)
-    { m_active = active; }
 
     bool m_active;
 };
@@ -55,10 +56,14 @@ signals:
 
 public slots:
     bool loadPlugins();
+    void startActivePlugins();
+    void stopPlugins();
+    void activatePlugin(QString uid);
 
 private:
-    QQmlContext *m_qmlContext;
+    void updatePluginsModel();
 
+    QQmlContext *m_qmlContext;
     QMap<QString, PluginInfo *> m_plugins; // key - UID, value - reference to plugin's description
 };
 

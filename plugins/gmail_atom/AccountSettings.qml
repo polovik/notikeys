@@ -146,7 +146,7 @@ Rectangle {
         minimumValue: 1
         maximumValue: 100
         stepSize: 1
-        suffix: qsTr("sec")
+        suffix: ""
         property bool pollPerSeconds: true
         onValueChanged: {
             if (pollPerSeconds && (value > 99)) {
@@ -158,6 +158,12 @@ Rectangle {
                 value = 99
                 suffix = qsTr("sec")
             }
+
+            var interval = value
+            if (pollPerSeconds === false)
+                interval = interval * 60
+            if ((Settings !== null) && (suffix.length > 0))
+                Settings.set("GmailAtom/pollingInterval", interval)
         }
     }
 
@@ -213,15 +219,11 @@ Rectangle {
         }
     }
 
+    //  NOTE: This slot may be called after starting active plugins, because deleting of component is dalayed
     Component.onDestruction: {
         console.log("Finish configuration of GMailAtom plugin")
         GmailAtom.error.disconnect(displayError)
         GmailAtom.feedLoaded.disconnect(displayAccountStatus)
         GmailAtom.allCredentialsTested.disconnect(displayChecking)
-        var interval = spinBoxPollingInterval.value
-        if (spinBoxPollingInterval.pollPerSeconds === false)
-            interval = interval * 60
-        if (Settings !== null)
-            Settings.set("GmailAtom/pollingInterval", interval)
     }
 }

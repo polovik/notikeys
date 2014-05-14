@@ -125,6 +125,10 @@ Rectangle {
         y: 0
         width: parent.width
         height: parent.height
+        onClosed: {
+            PluginsManager.stopPlugins()
+            PluginsManager.startActivePlugins()
+        }
     }
 
     property bool viewInactiveButtons: false
@@ -188,6 +192,7 @@ Rectangle {
                 anchors.fill: parent
                 onClicked: {
                     console.log("Display settings")
+                    PluginsManager.activatePlugin("1") // TODO for testing only
                 }
             }
         }
@@ -275,6 +280,7 @@ Rectangle {
                             anchors.fill: parent
                             onClicked: {
                                 console.log("Button #0 is pressed")
+                                PluginsManager.stopPlugins()
                                 screenPluginConfigure.pluginId = uid;
                                 screenPluginConfigure.pluginName = name;
                                 screenPluginConfigure.makeVisible(settingsScreenPath)

@@ -6,6 +6,7 @@
 #include <QQueue>
 #include <QPair>
 #include <QMutex>
+#include <QTimer>
 #include <gui/PluginInterface.h>
 
 class QNetworkAccessManager;
@@ -27,6 +28,8 @@ public:
     void exportToQML(QQmlContext *context);
 
 public slots:
+    void start();
+    void stop();
     void verifyAccount(const QString &user, const QString &password);
 
 private slots:
@@ -41,6 +44,7 @@ private:
     QQueue<QPair<QString, QString> > m_queueTestAuth;
     QPair<QString, QString> m_lastTestAuth;
     QMutex m_authMutex;
+    QTimer m_pollingTimer;
 
 signals:
     void error(QString description);

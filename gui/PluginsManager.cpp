@@ -96,7 +96,7 @@ bool PluginsManager::loadPlugins()
                         continue;
                     }
                     PluginInfo *info = new PluginInfo();
-                    info->setProperty("active", false);
+                    info->setActive(false);
                     info->m_plugin = plugin;
                     info->m_absoluteFilePath = pluginPath;
                     info->m_uid = uid;
@@ -111,12 +111,48 @@ bool PluginsManager::loadPlugins()
         }
     }
 
+    updatePluginsModel();
+    return true;
+}
+
+void PluginsManager::startActivePlugins()
+{
+    foreach (const QString &uid, m_plugins.keys()) {
+        PluginInfo *info = m_plugins.value(uid);
+        if (info->active())
+            info->m_plugin->start();
+    }
+}
+
+void PluginsManager::stopPlugins()
+{
+    foreach (const QString &uid, m_plugins.keys()) {
+        PluginInfo *info = m_plugins.value(uid);
+        info->m_plugin->stop();
+    }
+}
+
+void PluginsManager::activatePlugin(QString uid)
+{
+    if (!m_plugins.contains(uid)) {
+        qCritical() << "Request to unloaded plugin" << uid;
+        Q_ASSERT(false);
+        return;
+    }
+
+    PluginInfo *info = m_plugins.value(uid);
+    info->setActive(true);
+    info->m_plugin->start();
+    updatePluginsModel();
+}
+
+void PluginsManager::updatePluginsModel()
+{
     QList<QObject*> pluginsList;
     foreach (const QString &uid, m_plugins.keys()) {
         pluginsList.append(m_plugins.value(uid));
     }
     m_qmlContext->setContextProperty("pluginsModel", QVariant::fromValue(pluginsList));
-    return true;
 }
 
 //------------------------------------------------------------------------------

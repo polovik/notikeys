@@ -6,7 +6,6 @@
 #include <QSslSocket>
 #include <QSslConfiguration>
 #include <QQmlContext>
-#include <QTimer>
 #include <QXmlStreamReader>
 #include "GmailAtom.h"
 #include "device/Settings.h"
@@ -31,11 +30,35 @@ void GmailAtom::loadPlugin()
     connect(m_manager, SIGNAL(authenticationRequired(QNetworkReply *, QAuthenticator *)),
             SLOT(provideAuthenication(QNetworkReply *, QAuthenticator *)));
     qDebug() << "SSL support:" << QSslSocket::supportsSsl();
+    connect(&m_pollingTimer, SIGNAL(timeout()), this, SLOT(fetchFeed()));
 }
 
 void GmailAtom::exportToQML(QQmlContext *context)
 {
     context->setContextProperty("GmailAtom", this);
+}
+
+void GmailAtom::start()
+{
+    Settings settings;
+    QString interval = settings.get("GmailAtom/pollingInterval");
+    bool ok = false;
+    int seconds = interval.toInt(&ok);
+    if (ok == false) {
+        qWarning() << "Polling interval is missed or incorrect:" << interval;
+        return;
+    }
+    qDebug() << "Start polling Gmail every" << seconds << "sec.";
+    m_pollingTimer.start(seconds * 1000);
+}
+
+void GmailAtom::stop()
+{
+    QMutexLocker locker(&m_authMutex);
+    m_pollingTimer.stop();
+    m_queueTestAuth.clear();
+    m_lastTestAuth.first.clear();
+    m_lastTestAuth.second.clear();
 }
 
 void GmailAtom::fetchFeed()
@@ -92,7 +115,8 @@ void GmailAtom::provideAuthenication(QNetworkReply *reply, QAuthenticator *ator)
 void GmailAtom::readData(QNetworkReply *reply)
 {
     QMutexLocker locker(&m_authMutex);
-    m_queueTestAuth.dequeue();
+    if (!m_queueTestAuth.isEmpty())
+        m_queueTestAuth.dequeue();
     m_lastTestAuth.first.clear();
     m_lastTestAuth.second.clear();
     QByteArray data = reply->readAll();

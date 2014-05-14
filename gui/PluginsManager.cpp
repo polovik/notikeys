@@ -6,12 +6,15 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QQmlContext>
+#include <QTranslator>
+#include <QtGui/QGuiApplication>
 #include "PluginsManager.h"
 #include "PluginInterface.h"
 
 PluginsManager::PluginsManager(QQmlContext *ctx, QObject *parent) :
     QObject(parent), m_qmlContext(ctx)
 {
+    m_mainMenuTranslator = new QTranslator();
 }
 
 const QImage PluginsManager::getPluginLogo(QString uid) const
@@ -40,7 +43,7 @@ const QImage PluginsManager::getPluginLogo(QString uid) const
 
 bool PluginsManager::loadPlugins()
 {
-    m_plugins.clear(); // TODO clear each instance of PluginInfo *
+    m_plugins.clear(); // TODO clear each instance of PluginInfo * and QTranslator *
     QDir pluginsDir(qApp->applicationDirPath());
     bool dirExist = false;
 #if defined(Q_OS_WIN)
@@ -103,6 +106,7 @@ bool PluginsManager::loadPlugins()
                     info->m_name = title;
                     info->m_settingsScreenPath = fi.absoluteFilePath();
                     info->m_metaData = metaData;
+                    info->m_translator = new QTranslator();
                     m_plugins.insert(uid, info);
                 } else {
                     qWarning() << "Plugin" << fileName << "has unknown interface";
@@ -144,6 +148,63 @@ void PluginsManager::activatePlugin(QString uid)
     info->setActive(true);
     info->m_plugin->start();
     updatePluginsModel();
+}
+
+void PluginsManager::loadLanguage(QString lang)
+{
+    foreach (const QString &uid, m_plugins.keys()) {
+        PluginInfo *info = m_plugins.value(uid);
+        const QJsonObject& metaData = info->m_metaData;
+        QJsonArray langPacks = metaData.value(NS_PLUGIN_INFO::fieldLanguagePacks).toArray();
+        bool loadedTranslatorFile = false;
+        foreach (QJsonValue pack, langPacks) {
+            QString fileName = pack.toString();
+            if (fileName.contains(lang)) {
+                QFileInfo pluginFile(info->m_absoluteFilePath);
+                QFileInfo fi(pluginFile.absoluteDir(), fileName);
+                if (!fi.exists()) {
+                    qCritical() << "File" << fileName << "doesn't present in folder" << pluginFile.absoluteDir();
+                    Q_ASSERT(false);
+                    break;
+                }
+                QString absFileName = fi.absoluteFilePath();
+                absFileName.remove(".qm");
+                loadedTranslatorFile = info->m_translator->load(absFileName);
+                if (loadedTranslatorFile == false)
+                    qWarning() << "Can't load translation" << fi.absoluteFilePath() << absFileName;
+                break;
+            }
+        }
+        if (loadedTranslatorFile) {
+            QGuiApplication::installTranslator(info->m_translator);
+        } else {
+            if (!lang.contains("us_US"))
+                qWarning() << "Plugin" << info->m_name << "doesn't have language pack";
+            QGuiApplication::removeTranslator(info->m_translator);
+        }
+    }
+
+    QDir mainMenuLangsDir(qApp->applicationDirPath());
+    mainMenuLangsDir.cd("langs");
+    QStringList nameFilters;
+    nameFilters << "*.qm";
+    bool loadedFile = false;
+    foreach (QString fileName, mainMenuLangsDir.entryList(nameFilters, QDir::Files)) {
+        if (fileName.contains(lang)) {
+            fileName.remove(".qm");
+            loadedFile = m_mainMenuTranslator->load(fileName, "langs");
+            if (loadedFile == false)
+                qWarning() << "Can't load translation for main menu" << (fileName + QString(".qm"));
+            break;
+        }
+    }
+    if (loadedFile)
+        QGuiApplication::installTranslator(m_mainMenuTranslator);
+    else {
+        if (!lang.contains("us_US"))
+            qWarning() << "Main menu doesn't have language pack";
+        QGuiApplication::removeTranslator(m_mainMenuTranslator);
+    }
 }
 
 void PluginsManager::updatePluginsModel()

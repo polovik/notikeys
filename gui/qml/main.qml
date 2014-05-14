@@ -132,6 +132,8 @@ Rectangle {
     }
 
     property bool viewInactiveButtons: false
+    property string language: ""
+
     Rectangle {
         id: screenConnected
         x: 0
@@ -193,6 +195,35 @@ Rectangle {
                 onClicked: {
                     console.log("Display settings")
                     PluginsManager.activatePlugin("1") // TODO for testing only
+                }
+            }
+        }
+        Image {
+            id: imageLanguage
+            anchors.right: imageSettings.left
+            anchors.rightMargin: parent.width * 0.01
+            anchors.bottom: imageSettings.bottom
+            height: parent.height * 0.3
+            fillMode: Image.PreserveAspectFit
+            source: ""
+            Connections {
+                target: mainScreen
+                onLanguageChanged: {
+                    console.log("Selected language: " + mainScreen.language)
+                    if (language === "us_US")
+                        imageLanguage.source = "images/lang_us_US.png"
+                    else
+                        imageLanguage.source = "images/lang_ru_RU.png"
+                    PluginsManager.loadLanguage(mainScreen.language)
+                }
+            }
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                    if (language === "us_US")
+                        language = "ru_RU"
+                    else
+                        language = "us_US"
                 }
             }
         }
@@ -295,5 +326,6 @@ Rectangle {
     Component.onCompleted: {
         screenPluginConfigure.makeInvisible()
         PluginsManager.loadPlugins();
+        mainScreen.language = "us_US"
     }
 }

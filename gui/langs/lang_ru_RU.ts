@@ -14,18 +14,19 @@
     <message>
         <location filename="../qml/main.qml" line="109"/>
         <source>Notikeys is connected!</source>
-        <translation type="unfinished"></translation>
+        <translation>Notikeys подключены!</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="111"/>
         <source>Notikeys is disconnected.
 Plug it in USB port</source>
-        <translation type="unfinished"></translation>
+        <translation>Notikeys отключены.
+Подключите к USB порту компьютера</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="174"/>
         <source>Inactive buttons</source>
-        <translation type="unfinished"></translation>
+        <translation>Неактивные кнопки</translation>
     </message>
 </context>
 </TS>

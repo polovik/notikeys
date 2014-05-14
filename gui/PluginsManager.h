@@ -7,6 +7,7 @@
 #include <QJsonObject>
 
 class PluginInterface;
+class QTranslator;
 
 class PluginInfo : public QObject
 {
@@ -29,6 +30,7 @@ public:
     QString m_name;
     QString m_settingsScreenPath;
     QJsonObject m_metaData;
+    QTranslator *m_translator;
 
 signals:
     void uidChanged(QString uid);
@@ -59,12 +61,14 @@ public slots:
     void startActivePlugins();
     void stopPlugins();
     void activatePlugin(QString uid);
+    void loadLanguage(QString lang);
 
 private:
     void updatePluginsModel();
 
     QQmlContext *m_qmlContext;
     QMap<QString, PluginInfo *> m_plugins; // key - UID, value - reference to plugin's description
+    QTranslator *m_mainMenuTranslator;
 };
 
 //------------------------------------------------------------------------------

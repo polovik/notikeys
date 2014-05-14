@@ -11,6 +11,7 @@ const QString fieldDependencies = "dependencies";
 const QString fieldID = "UID";
 const QString fieldLogoFile = "logo";
 const QString fieldSettingsFile = "settings";
+const QString fieldLanguagePacks = "translations";
 }
 
 class QQmlContext;

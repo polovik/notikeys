@@ -10,3 +10,6 @@ Thanks to Benjamin
 
 File "previous.png" was obtained from http://findicons.com/icon/440065/br_prev
 Thanks to gentleface.com
+
+Files "lang_ru_RU.png" and "lang_us_US.png" was obtained from http://findicons.com/icon/32264/russian_federation and http://findicons.com/icon/32355/united_states_of_america_usa
+Thanks to IconDrawer (Eugen Buzuk)

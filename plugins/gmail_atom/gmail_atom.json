@@ -6,5 +6,6 @@
     "authors": "Dmitry Valento",
     "dependencies": [],
     "logo": "gmail.png",
-    "settings": "AccountSettings.qml"
+    "settings": "AccountSettings.qml",
+    "translations": ["langs/lang_ru_RU.qm"]
 }

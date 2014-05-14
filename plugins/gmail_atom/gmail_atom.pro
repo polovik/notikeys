@@ -18,6 +18,7 @@ settingsSource = $$PWD/AccountSettings.qml
 logoSource = $$PWD/gmail.png
 progressSource = $$PWD/checking.gif
 licenseSource = $$PWD/license.txt
+translationsSource = $$PWD/langs/*.qm
 resourcesTarget = $$DESTDIR
 
 win32 {
@@ -25,11 +26,13 @@ win32 {
     logoSource = $$replace(logoSource, /, \\)
     progressSource = $$replace(progressSource, /, \\)
     licenseSource = $$replace(licenseSource, /, \\)
+    translationsSource = $$replace(translationsSource, /, \\)
     resourcesTarget = $$replace(resourcesTarget, /, \\)
     system(copy /Y /V $$settingsSource $$resourcesTarget)
     system(copy /Y /V $$logoSource $$resourcesTarget)
     system(copy /Y /V $$progressSource $$resourcesTarget)
     system(copy /Y /V $$licenseSource $$resourcesTarget)
+    system(xcopy /Y /V $$translationsSource $$resourcesTarget\\langs\\)
 }
 
 CONFIG(debug, debug|release) {

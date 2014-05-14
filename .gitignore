@@ -27,3 +27,6 @@ build-*-Release
 
 # Qt creator's temp file
 *.pro.user*
+
+# Compiled translations
+*.qm

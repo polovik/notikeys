@@ -99,16 +99,26 @@ Rectangle {
             }
         }
         Text {
+            id: labelStatus
             anchors.left: imageDisconnected.right
             anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignHCenter
-            text: {
+            text: ""
+            function updateText() {
                 if (screenDisconnected.deviceConnected)
-                    return qsTr("Notikeys is connected!")
+                    text = qsTr("Notikeys is connected!")
                 else
-                    return qsTr("Notikeys is disconnected.\nPlug it in USB port")
+                    text = qsTr("Notikeys is disconnected.\nPlug it in USB port")
+            }
+            Connections {
+                target: mainScreen
+                onLanguageChanged: labelStatus.updateText()
+            }
+            Connections {
+                target: screenDisconnected
+                onDeviceConnectedChanged: labelStatus.updateText()
             }
         }
         MouseArea {
@@ -173,7 +183,13 @@ Rectangle {
                 label: Text {
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignHCenter
-                    text: qsTr("Inactive buttons")
+                    text: ""
+                    Connections {
+                        target: mainScreen
+                        onLanguageChanged: {
+                            text = qsTr("Inactive buttons")
+                        }
+                    }
                 }
             }
             onCheckedChanged: {
@@ -215,6 +231,7 @@ Rectangle {
                     else
                         imageLanguage.source = "images/lang_ru_RU.png"
                     PluginsManager.loadLanguage(mainScreen.language)
+                    Settings.set("language", language)
                 }
             }
             MouseArea {
@@ -326,6 +343,10 @@ Rectangle {
     Component.onCompleted: {
         screenPluginConfigure.makeInvisible()
         PluginsManager.loadPlugins();
-        mainScreen.language = "us_US"
+        var lang = Settings.get("language")
+        if (lang.length === 0)
+            mainScreen.language = "us_US"
+        else
+            mainScreen.language = lang
     }
 }

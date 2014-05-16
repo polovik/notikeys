@@ -12,19 +12,19 @@
 <context>
     <name>main</name>
     <message>
-        <location filename="../qml/main.qml" line="109"/>
+        <location filename="../qml/main.qml" line="111"/>
         <source>Notikeys is connected!</source>
         <translation>Notikeys подключены!</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="111"/>
+        <location filename="../qml/main.qml" line="113"/>
         <source>Notikeys is disconnected.
 Plug it in USB port</source>
         <translation>Notikeys отключены.
 Подключите к USB порту компьютера</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="174"/>
+        <location filename="../qml/main.qml" line="190"/>
         <source>Inactive buttons</source>
         <translation>Неактивные кнопки</translation>
     </message>

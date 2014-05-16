@@ -188,7 +188,7 @@ Rectangle {
 
     function displayAccountStatus(newMessagesCount) {
         accountSettingsScreen.state = "ACCOUNT_VALID"
-        labelStatus.text = qsTr("Valid.") + " New messages: " + newMessagesCount
+        labelStatus.text = qsTr("Valid. New messages: ") + newMessagesCount
         if ((Settings !== null) && (fieldLogin.text !== null))
             Settings.set("GmailAtom/account", fieldLogin.text)
         if ((Settings !== null) && (fieldPassword.text !== null) && (fieldPassword.text.length > 0))

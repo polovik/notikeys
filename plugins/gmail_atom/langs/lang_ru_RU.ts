@@ -47,8 +47,12 @@
     </message>
     <message>
         <location filename="../AccountSettings.qml" line="191"/>
+        <source>Valid. New messages: </source>
+        <translation>Верно. Новых сообщений: </translation>
+    </message>
+    <message>
         <source>Valid.</source>
-        <translation>Верно.</translation>
+        <translation type="obsolete">Верно.</translation>
     </message>
 </context>
 <context>

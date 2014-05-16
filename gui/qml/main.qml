@@ -210,7 +210,7 @@ Rectangle {
                 anchors.fill: parent
                 onClicked: {
                     console.log("Display settings")
-                    PluginsManager.activatePlugin("1") // TODO for testing only
+                    PluginsManager.activatePlugin("2") // TODO for testing only
                 }
             }
         }

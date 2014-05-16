@@ -24,6 +24,7 @@ public:
 public slots:
     void start();
     void stop();
+    void check();
 
 private slots:
 
@@ -31,6 +32,8 @@ private:
     QTimer m_pollingTimer;
 
 signals:
+    void skypeIsAbsent();
+    void eventsCount(int events);
 };
 
 #endif // SKYPE_H

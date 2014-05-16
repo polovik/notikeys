@@ -4,51 +4,40 @@
 <context>
     <name>AccountSettings</name>
     <message>
-        <location filename="../AccountSettings.qml" line="14"/>
         <source>Feel account&apos;s data</source>
-        <translation>Введите данные авторизации</translation>
+        <translation type="obsolete">Введите данные авторизации</translation>
     </message>
     <message>
-        <location filename="../AccountSettings.qml" line="19"/>
         <source>Format of e-mail should be: username@domain</source>
-        <translation>Формат поля &quot;e-mail&quot; должен быть: пользователь@домен</translation>
+        <translation type="obsolete">Формат поля &quot;e-mail&quot; должен быть: пользователь@домен</translation>
     </message>
     <message>
-        <location filename="../AccountSettings.qml" line="43"/>
         <source>Login:</source>
-        <translation>Логин:</translation>
+        <translation type="obsolete">Логин:</translation>
     </message>
     <message>
-        <location filename="../AccountSettings.qml" line="65"/>
         <source>Password is empty</source>
-        <translation>Пароль не введён</translation>
+        <translation type="obsolete">Пароль не введён</translation>
     </message>
     <message>
-        <location filename="../AccountSettings.qml" line="82"/>
         <source>Password:</source>
-        <translation>Пароль:</translation>
+        <translation type="obsolete">Пароль:</translation>
     </message>
     <message>
-        <location filename="../AccountSettings.qml" line="138"/>
         <source>Check for new mails every:</source>
-        <translation>Проверять наличие новых писем каждые:</translation>
+        <translation type="obsolete">Проверять наличие новых писем каждые:</translation>
     </message>
     <message>
-        <location filename="../AccountSettings.qml" line="155"/>
-        <location filename="../AccountSettings.qml" line="214"/>
         <source>min</source>
-        <translation>мин</translation>
+        <translation type="obsolete">мин</translation>
     </message>
     <message>
-        <location filename="../AccountSettings.qml" line="159"/>
-        <location filename="../AccountSettings.qml" line="218"/>
         <source>sec</source>
-        <translation>сек</translation>
+        <translation type="obsolete">сек</translation>
     </message>
     <message>
-        <location filename="../AccountSettings.qml" line="191"/>
         <source>Valid. New messages: </source>
-        <translation>Верно. Новых сообщений: </translation>
+        <translation type="obsolete">Верно. Новых сообщений: </translation>
     </message>
     <message>
         <source>Valid.</source>
@@ -58,9 +47,38 @@
 <context>
     <name>GmailAtom</name>
     <message>
-        <location filename="../GmailAtom.cpp" line="128"/>
         <source>The email or password you entered is incorrect</source>
-        <translation>Введённые e-mail или пароль не корректны</translation>
+        <translation type="obsolete">Введённые e-mail или пароль не корректны</translation>
+    </message>
+</context>
+<context>
+    <name>Settings</name>
+    <message>
+        <location filename="../Settings.qml" line="36"/>
+        <source>Check Skype status every:</source>
+        <translation>Проверять состяние Skype каждые:</translation>
+    </message>
+    <message>
+        <location filename="../Settings.qml" line="53"/>
+        <location filename="../Settings.qml" line="91"/>
+        <source>min</source>
+        <translation>мин</translation>
+    </message>
+    <message>
+        <location filename="../Settings.qml" line="57"/>
+        <location filename="../Settings.qml" line="95"/>
+        <source>sec</source>
+        <translation>сек</translation>
+    </message>
+    <message>
+        <location filename="../Settings.qml" line="71"/>
+        <source>Skype isn&apos;t detected</source>
+        <translation>Skype не обнаружен</translation>
+    </message>
+    <message>
+        <location filename="../Settings.qml" line="77"/>
+        <source>Skype is present. Events count: </source>
+        <translation>Skype обнаружен. Событий: </translation>
     </message>
 </context>
 </TS>

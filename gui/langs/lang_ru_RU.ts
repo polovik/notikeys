@@ -4,7 +4,7 @@
 <context>
     <name>PluginSettingsScreen</name>
     <message>
-        <location filename="../qml/PluginSettingsScreen.qml" line="77"/>
+        <location filename="../qml/PluginSettingsScreen.qml" line="81"/>
         <source>Back</source>
         <translation>Назад</translation>
     </message>

@@ -33,7 +33,7 @@ Rectangle {
         height: labelStatus.height
         verticalAlignment: Text.AlignVCenter
         horizontalAlignment: Text.AlignLeft
-        text: qsTr("Check for new mails every:")
+        text: qsTr("Check Skype status every:")
     }
 
     SpinBox {
@@ -65,8 +65,22 @@ Rectangle {
         }
     }
 
+    function displayAbsent() {
+        rectStatus.color = "#2a76a5"
+        labelStatus.color = "white"
+        labelStatus.text = qsTr("Skype isn't detected")
+    }
+
+    function displayEventsNumber(num) {
+        rectStatus.color = "#039103"
+        labelStatus.color = "white"
+        labelStatus.text = qsTr("Skype is present. Events count: ") + num
+    }
+
     Component.onCompleted: {
         console.log("Start configuration of Skype plugin")
+        Skype.skypeIsAbsent.connect(displayAbsent)
+        Skype.eventsCount.connect(displayEventsNumber)
         var strInterval = Settings.get("Skype/pollingInterval")
         if (strInterval.length === 0)
             strInterval = 60
@@ -80,10 +94,13 @@ Rectangle {
             spinBoxPollingInterval.value = interval
             spinBoxPollingInterval.suffix = qsTr("sec")
         }
+        Skype.check()
     }
 
     //  NOTE: This slot may be called after starting active plugins, because deleting of component is dalayed
     Component.onDestruction: {
         console.log("Finish configuration of Skype plugin")
+        Skype.skypeIsAbsent.disconnect(displayAbsent)
+        Skype.eventsCount.disconnect(displayEventsNumber)
     }
 }

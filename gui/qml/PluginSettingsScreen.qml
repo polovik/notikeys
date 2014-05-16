@@ -69,12 +69,17 @@ Item {
                 source: "images/previous.png"
             }
             Text {
+                id: labelBack
                 anchors.left: imagePrevious.right
                 anchors.right: parent.right
                 anchors.verticalCenter: parent.verticalCenter
                 verticalAlignment: Text.AlignVCenter
                 horizontalAlignment: Text.AlignHCenter
-                text: qsTr("Back")
+                text: ""
+                Connections {
+                    target: mainScreen
+                    onLanguageChanged: labelBack.text = qsTr("Back")
+                }
             }
             MouseArea {
                 anchors.fill: parent

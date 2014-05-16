@@ -1,37 +1,34 @@
 TEMPLATE      = lib
 CONFIG        += plugin
-QT            += network qml
+QT            += qml
 
 INCLUDEPATH   += ../..
 HEADERS       = \
-    GmailAtom.h
+    Skype.h
 SOURCES       = \
-    GmailAtom.cpp
-TARGET        = $$qtLibraryTarget(gmail_atom)
-DESTDIR       = ../../build/plugins/gmail_atom
+    Skype.cpp
+TARGET        = $$qtLibraryTarget(skype)
+DESTDIR       = ../../build/plugins/skype
 
 OTHER_FILES += \
-    AccountSettings.qml \
-    gmail_atom.json
+    Settings.qml \
+    skype.json
 
-settingsSource = $$PWD/AccountSettings.qml
-logoSource = $$PWD/gmail.png
-progressSource = $$PWD/checking.gif
+settingsSource = $$PWD/Settings.qml
+logoSource = $$PWD/skype.png
 licenseSource = $$PWD/license.txt
 translationsSource = $$PWD/langs/*.qm
-resourcesTarget = $$DESTDIR
+resourcesTarget = $$DESTDIR/
 
 win32 {
     settingsSource = $$replace(settingsSource, /, \\)
     logoSource = $$replace(logoSource, /, \\)
-    progressSource = $$replace(progressSource, /, \\)
     licenseSource = $$replace(licenseSource, /, \\)
     translationsSource = $$replace(translationsSource, /, \\)
     resourcesTarget = $$replace(resourcesTarget, /, \\)
     system(mkdir $$resourcesTarget)
     system(copy /Y /V $$settingsSource $$resourcesTarget)
     system(copy /Y /V $$logoSource $$resourcesTarget)
-    system(copy /Y /V $$progressSource $$resourcesTarget)
     system(copy /Y /V $$licenseSource $$resourcesTarget)
     system(xcopy /Y /V $$translationsSource $$resourcesTarget\\langs\\)
 }

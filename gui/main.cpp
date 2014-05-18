@@ -8,6 +8,7 @@
 #include <QtGui/QGuiApplication>
 #include "qtquick2applicationviewer.h"
 #include "PluginsManager.h"
+#include "ExternalPluginServer.h"
 #include "../device/Settings.h"
 
 static QTextCodec *logCodec = NULL;
@@ -76,6 +77,9 @@ int main(int argc, char *argv[])
 
     PluginsManager pluginsManager(viewer.rootContext());
     viewer.rootContext()->setContextProperty("PluginsManager", &pluginsManager);
+
+    ExternalPluginServer pluginServer;
+    pluginServer.startServer();
 
     Settings settings;
     viewer.rootContext()->setContextProperty("Settings", &settings);

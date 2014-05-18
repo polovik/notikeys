@@ -15,11 +15,12 @@ QML_IMPORT_PATH =
 # CONFIG += mobility
 # MOBILITY +=
 
-QT += widgets
+QT += widgets network
 DESTDIR = ../build
 
 SOURCES += main.cpp \
-    PluginsManager.cpp
+    PluginsManager.cpp \
+    ExternalPluginServer.cpp
 
 # Installation path
 # target.path =
@@ -30,7 +31,9 @@ qtcAddDeployment()
 
 HEADERS += \
     PluginsManager.h \
-    PluginInterface.h
+    PluginInterface.h \
+    ExternalPluginServer.h \
+    ExternalPluginProtocol.h
 
 OTHER_FILES += \
     qml/PluginSettingsScreen.qml

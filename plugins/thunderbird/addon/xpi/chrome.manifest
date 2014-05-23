@@ -1,0 +1,4 @@
+content     notikeys                 chrome/content/
+skin        notikeys   classic/1.0   chrome/skin/
+locale      notikeys   en-US         chrome/locale/en-US/
+overlay   chrome://messenger/content/mailWindowOverlay.xul            chrome://notikeys/content/overlay.xul

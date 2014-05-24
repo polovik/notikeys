@@ -1,5 +1,7 @@
-skin	silentblock	classic/1.0		chrome/skin/
+content	notikeys			chrome/content/
+skin	notikeys	classic/1.0	chrome/skin/
+locale	notikeys	en-US		chrome/locale/en-US/
 
-component {11040270-a2e9-11e0-8264-0800200c9a66} components/SilentBlockComponents.js
+component {11040270-a2e9-11e0-8264-0800200c9a66} components/NewMessagePolling.js
 contract @schuzak.jp/SilentBlock;1 {11040270-a2e9-11e0-8264-0800200c9a66}
 category profile-after-change SilentBlock @schuzak.jp/SilentBlock;1

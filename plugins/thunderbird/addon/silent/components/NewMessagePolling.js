@@ -19,8 +19,8 @@ function InformNotikeys() {
 
 InformNotikeys.prototype = {
 	classDescription: "Notikeys XPCOM component",
-	classID: Components.ID("{11040270-a2e9-11e0-8264-0800200c9a66}"),
-	contractID: "@schuzak.jp/SilentBlock;1",
+	classID: Components.ID("{d50fa17d-c872-4287-8e24-f04392f4e568}"),
+	contractID: "@notikeys.com/Notikeys;1",
 	QueryInterface: XPCOMUtils.generateQI(),
 };
 

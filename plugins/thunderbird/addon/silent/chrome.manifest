@@ -2,6 +2,6 @@ content	notikeys			chrome/content/
 skin	notikeys	classic/1.0	chrome/skin/
 locale	notikeys	en-US		chrome/locale/en-US/
 
-component {11040270-a2e9-11e0-8264-0800200c9a66} components/NewMessagePolling.js
-contract @schuzak.jp/SilentBlock;1 {11040270-a2e9-11e0-8264-0800200c9a66}
-category profile-after-change SilentBlock @schuzak.jp/SilentBlock;1
+component {d50fa17d-c872-4287-8e24-f04392f4e568} components/NewMessagePolling.js
+contract @notikeys.com/Notikeys;1 {d50fa17d-c872-4287-8e24-f04392f4e568}
+category profile-after-change Notikeys @notikeys.com/Notikeys;1

@@ -1,0 +1,11 @@
+{
+    "UID": "3",
+    "name": "Thunderbird",
+    "version": "0.1",
+    "description": "Check for receiving new e-mails in Thunderbird",
+    "authors": "Dmitry Valento",
+    "dependencies": [],
+    "logo": "thunderbird.png",
+    "settings": "Settings.qml",
+    "translations": ["langs/lang_ru_RU.qm"]
+}

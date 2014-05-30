@@ -24,6 +24,9 @@
 build-*-Debug
 build-*-Release
 /build
+/device/Makefile*
+/device/debug
+/device/release
 
 # Qt creator's temp file
 *.pro.user*

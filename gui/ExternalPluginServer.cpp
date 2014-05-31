@@ -62,11 +62,11 @@ void ExternalPluginServer::readPluginData()
 
     //  Divide readed data on packets by separator - PLUGIN_PACKET_PREAMBLE
     int receivedBytes = data.size();
-    qDebug() << "Recieved from plugin:" << data;
     int pos = data.indexOf(PLUGIN_PACKET_PREAMBLE);
     while (pos >= 0) {
         if ((receivedBytes - pos) < (int)PLUGIN_PACKET_LENGTH) {
             qWarning() << "Some data from plugin is missed. Received:" << receivedBytes;
+            qCritical() << "Recieved from plugin:" << data;
             Q_ASSERT(false);
             break;
         }
@@ -80,6 +80,7 @@ void ExternalPluginServer::readPluginData()
     foreach (QByteArray packet, packets) {
         if (packet.size() != (int)PLUGIN_PACKET_LENGTH) {
             qCritical() << "Incorrect packet size:" << packet.size();
+            qCritical() << "Recieved from plugin:" << data;
             Q_ASSERT(false);
             continue;
         }
@@ -88,13 +89,13 @@ void ExternalPluginServer::readPluginData()
         qDebug() << "UID:" << data->uid << "Events:" << data->eventsCount;
         QString uid = QString("%1").arg(data->uid);
 
-        //  Verify and bind unique connection
+        //  Verify and bind unique connection. Then send events notification to PluginManager
         if (m_pluginConnections.contains(uid)) {
             if (m_pluginConnections.value(uid) != connection) {
                 qCritical() << "Simultaneous access from different plugins by same UID:" << uid;
                 continue;
             }
-            // TODO send events notification to PluginManager
+            emit eventsGot(data->uid, data->eventsCount);
         } else {
             QList<QLocalSocket *> unbindedConnections = m_pluginConnections.values("-1");
             if (unbindedConnections.contains(connection)) {
@@ -105,6 +106,7 @@ void ExternalPluginServer::readPluginData()
                 }
                 qDebug() << "Bind plugin with UID:" << uid;
                 m_pluginConnections.insert(uid, connection);
+                emit eventsGot(data->uid, data->eventsCount);
             } else {
                 qCritical() << "Recieved data from plugin, which doesn't register in unbinded connections. UID:" << uid;
                 continue;

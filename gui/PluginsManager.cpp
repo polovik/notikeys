@@ -207,6 +207,19 @@ void PluginsManager::loadLanguage(QString lang)
     }
 }
 
+void PluginsManager::processExternalEvents(qint32 pluginUid, qint32 eventsCount)
+{
+    QString uid = QString::number(pluginUid);
+    if (!m_plugins.contains(uid)) {
+        qWarning() << "Plugin with uid" << pluginUid << "is missed";
+        Q_ASSERT(false);
+        return;
+    }
+    PluginInfo *info = m_plugins.value(uid);
+    PluginInterface *interface = info->m_plugin;
+    interface->analizeExternalEvents(eventsCount);
+}
+
 void PluginsManager::updatePluginsModel()
 {
     QList<QObject*> pluginsList;

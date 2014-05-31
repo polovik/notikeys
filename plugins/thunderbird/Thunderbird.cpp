@@ -55,3 +55,9 @@ void Thunderbird::check()
 //        emit eventsCount(m_messages);
 //    }
 }
+
+
+void Thunderbird::analizeExternalEvents(qint32 eventsCount)
+{
+    qDebug() << "Recieved from Thunderbird:" << eventsCount << "events";
+}

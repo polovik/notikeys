@@ -27,7 +27,7 @@ private:
     QMultiMap<QString, QLocalSocket *> m_pluginConnections; // key - plugins UID, value - connection to plugin
 
 signals:
-
+    void eventsGot(qint32 pluginUid, qint32 eventsCount);
 };
 
 #endif // EXTERNALPLUGINSERVER_H

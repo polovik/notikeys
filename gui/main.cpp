@@ -80,6 +80,8 @@ int main(int argc, char *argv[])
 
     ExternalPluginServer pluginServer;
     pluginServer.startServer();
+    QObject::connect(&pluginServer, SIGNAL(eventsGot(qint32, qint32)),
+                     &pluginsManager, SLOT(processExternalEvents(qint32, qint32)));
 
     Settings settings;
     viewer.rootContext()->setContextProperty("Settings", &settings);

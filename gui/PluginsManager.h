@@ -62,6 +62,7 @@ public slots:
     void stopPlugins();
     void activatePlugin(QString uid);
     void loadLanguage(QString lang);
+    void processExternalEvents(qint32 pluginUid, qint32 eventsCount);
 
 private:
     void updatePluginsModel();

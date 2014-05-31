@@ -13,7 +13,9 @@ Thunderbird::~Thunderbird()
 
 void Thunderbird::loadPlugin()
 {
-    connect(&m_pollingTimer, SIGNAL(timeout()), this, SLOT(check()));
+    m_addonPresenceTimer.setSingleShot(true);
+    m_addonPresenceTimer.setInterval(ADDON_PRESENCE_TIMEOUT_MS);
+    connect(&m_addonPresenceTimer, SIGNAL(timeout()), this, SIGNAL(addonIsAbsent()));
 }
 
 void Thunderbird::exportToQML(QQmlContext *context)
@@ -23,41 +25,26 @@ void Thunderbird::exportToQML(QQmlContext *context)
 
 void Thunderbird::start()
 {
-//    Settings settings;
-//    QString interval = settings.get("Thunderbird/pollingInterval");
-//    bool ok = false;
-//    int seconds = interval.toInt(&ok);
-//    if (ok == false) {
-//        qWarning() << "Polling interval is missed or incorrect:" << interval;
-//        return;
-//    }
-//    qDebug() << "Start polling Thunderbird every" << seconds << "sec.";
-//    m_pollingTimer.start(seconds * 1000);
+    qDebug() << "Start Thunderbird's plugin";
+    m_addonPresenceTimer.start();
 }
 
 void Thunderbird::stop()
 {
-//    m_pollingTimer.stop();
+    m_addonPresenceTimer.stop();
 }
 
 void Thunderbird::check()
 {
-    qDebug() << "Thunderbird::check";
-//    int m_messages = -1;
-//    if (m_messages == -1) {
-//        qDebug() << "Thunderbird isn't run";
-//        emit addonIsAbsent();
-//    } else if (m_messages == 0) {
-//        qDebug() << "Thunderbird is present. No new events";
-//        emit eventsCount(m_messages);
-//    } else {
-//        qDebug() << "Thunderbird is present. Events count =" << m_messages;
-//        emit eventsCount(m_messages);
-//    }
+    qDebug() << "Check presence of addon for Thunderbird";
+    m_addonPresenceTimer.start();
 }
 
 
 void Thunderbird::analizeExternalEvents(qint32 eventsCount)
 {
     qDebug() << "Recieved from Thunderbird:" << eventsCount << "events";
+    m_addonPresenceTimer.start();
+    int events = eventsCount;
+    emit messagesCount(events);
 }

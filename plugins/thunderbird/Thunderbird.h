@@ -30,11 +30,12 @@ public slots:
 private slots:
 
 private:
-    QTimer m_pollingTimer;
+    static const int ADDON_PRESENCE_TIMEOUT_MS = 10000; // 2 * 5000("extensions.notikeys.pollTimeout")
+    QTimer m_addonPresenceTimer;
 
 signals:
     void addonIsAbsent();
-    void eventsCount(int events);
+    void messagesCount(int events);
 };
 
 #endif // THUNDERBIRD_H

@@ -58,29 +58,29 @@
         <translation type="obsolete">Проверять состяние Skype каждые:</translation>
     </message>
     <message>
-        <location filename="../Settings.qml" line="36"/>
-        <source>Check Thunderbird status every:</source>
-        <translation type="unfinished"></translation>
+        <source>min</source>
+        <translation type="obsolete">мин</translation>
     </message>
     <message>
-        <location filename="../Settings.qml" line="53"/>
-        <source>min</source>
-        <translation>мин</translation>
+        <source>sec</source>
+        <translation type="obsolete">сек</translation>
+    </message>
+    <message>
+        <location filename="../Settings.qml" line="45"/>
+        <source>Checking presence of Thunderbird&apos;s addon &quot;Notikeys&quot;</source>
+        <translation>Проверка наличия аддона &quot;Notikeys&quot; для Thunderbird   </translation>
+    </message>
+    <message>
+        <location filename="../Settings.qml" line="51"/>
+        <source>Thunderbird&apos;s addon &quot;Notikeys&quot; isn&apos;t detected.
+Verify that Thunderbird is started and addon &quot;Notikeys&quot; is installed</source>
+        <translation>Аддон &quot;Notikeys&quot; для Thunderbird не обнаружен.
+Проверьте, что Thunderbird запущени и аддон &quot;Notikeys&quot; установлен   </translation>
     </message>
     <message>
         <location filename="../Settings.qml" line="57"/>
-        <source>sec</source>
-        <translation>сек</translation>
-    </message>
-    <message>
-        <location filename="../Settings.qml" line="71"/>
-        <source>Thunderbird&apos;s addon &quot;Notikeys&quot; isn&apos;t detected</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../Settings.qml" line="77"/>
         <source>Thunderbird is present. Messages count: </source>
-        <translation type="unfinished"></translation>
+        <translation>Thunderbird обнаружен. Количество сообщений: </translation>
     </message>
     <message>
         <source>Skype isn&apos;t detected</source>

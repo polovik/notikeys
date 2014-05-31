@@ -10,8 +10,8 @@ Rectangle {
         id: rectStatus
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: parent.top
-        anchors.topMargin: parent.height * 0.3
-        height: parent.height * 0.15
+        anchors.topMargin: parent.height * 0.2
+        height: parent.height * 0.3
         width: parent.width * 0.9
         border.color: "black"
         border.width: 1
@@ -25,82 +25,61 @@ Rectangle {
         horizontalAlignment: Text.AlignHCenter
     }
 
-    Text {
-        id: labelPollingInterval
-        anchors.left: rectStatus.left
+    AnimatedImage {
+        id: imageVerifyInProgress
+        anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: rectStatus.bottom
-        anchors.topMargin: parent.height * 0.3
-        height: labelStatus.height
-        verticalAlignment: Text.AlignVCenter
-        horizontalAlignment: Text.AlignLeft
-        text: qsTr("Check Thunderbird status every:")
+        anchors.topMargin: parent.height * 0.1
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: parent.height * 0.1
+//        height: labelLogin.height
+        fillMode: Image.PreserveAspectFit
+        source: "checking.gif"
+        visible: false
     }
 
-    SpinBox {
-        id: spinBoxPollingInterval
-        anchors.left: labelPollingInterval.right
-        anchors.leftMargin: parent.width * 0.05
-        anchors.verticalCenter: labelPollingInterval.verticalCenter
-        minimumValue: 1
-        maximumValue: 100
-        stepSize: 1
-        suffix: ""
-        property bool pollPerSeconds: true
-        onValueChanged: {
-            if (pollPerSeconds && (value > 99)) {
-                pollPerSeconds = false
-                value = 2
-                suffix = qsTr("min")
-            } else if (!pollPerSeconds && (value < 2)) {
-                pollPerSeconds = true
-                value = 99
-                suffix = qsTr("sec")
-            }
-
-            var interval = value
-            if (pollPerSeconds === false)
-                interval = interval * 60
-            if ((Settings !== null) && (suffix.length > 0))
-                Settings.set("Thunderbird/pollingInterval", interval)
+    function displayChecking(status) {
+        if (status === "start") {
+            rectStatus.color = "#2a76a5"
+            labelStatus.color = "white"
+            labelStatus.text = qsTr("Checking presence of Thunderbird's addon \"Notikeys\"")
+            imageVerifyInProgress.playing = true
+            imageVerifyInProgress.visible = true
+        } else if (status === "absent") {
+            rectStatus.color = "#ff7171"
+            labelStatus.color = "black"
+            labelStatus.text = qsTr("Thunderbird's addon \"Notikeys\" isn't detected.\nVerify that Thunderbird is started and addon \"Notikeys\" is installed")
+            imageVerifyInProgress.visible = false
+            imageVerifyInProgress.playing = false
+        } else {
+            rectStatus.color = "#039103"
+            labelStatus.color = "white"
+            labelStatus.text = qsTr("Thunderbird is present. Messages count: ") + status
+            imageVerifyInProgress.visible = false
+            imageVerifyInProgress.playing = false
         }
     }
 
     function displayAbsent() {
-        rectStatus.color = "#2a76a5"
-        labelStatus.color = "white"
-        labelStatus.text = qsTr("Thunderbird's addon \"Notikeys\" isn't detected")
+        displayChecking("absent")
     }
 
     function displayEventsNumber(num) {
-        rectStatus.color = "#039103"
-        labelStatus.color = "white"
-        labelStatus.text = qsTr("Thunderbird is present. Messages count: ") + num
+        displayChecking(num)
     }
 
     Component.onCompleted: {
         console.log("Start configuration of Thunderbird plugin")
         Thunderbird.addonIsAbsent.connect(displayAbsent)
-        Thunderbird.eventsCount.connect(displayEventsNumber)
-//        var strInterval = Settings.get("Thunderbird/pollingInterval")
-//        if (strInterval.length === 0)
-//            strInterval = 60
-//        var interval = parseInt(strInterval)
-//        if (interval > 99) {
-//            spinBoxPollingInterval.pollPerSeconds = false
-//            spinBoxPollingInterval.value = interval / 60
-//            spinBoxPollingInterval.suffix = qsTr("min")
-//        } else {
-//            spinBoxPollingInterval.pollPerSeconds = true
-//            spinBoxPollingInterval.value = interval
-//            spinBoxPollingInterval.suffix = qsTr("sec")
-//        }
+        Thunderbird.messagesCount.connect(displayEventsNumber)
+        displayChecking("start")
         Thunderbird.check()
     }
 
-    //  NOTE: This slot may be called after starting active plugins, because deleting of component is dalayed
+    //  NOTE: This slot may be called after starting active plugins, because deleting of component is delayed
     Component.onDestruction: {
         console.log("Finish configuration of Thunderbird plugin")
         Thunderbird.addonIsAbsent.disconnect(displayAbsent)
-        Thunderbird.eventsCount.disconnect(displayEventsNumber)
+        Thunderbird.messagesCount.disconnect(displayEventsNumber)
     }
 }

@@ -16,6 +16,7 @@ OTHER_FILES += \
 
 settingsSource = $$PWD/Settings.qml
 logoSource = $$PWD/thunderbird.png
+progressSource = $$PWD/checking.gif
 licenseSource = $$PWD/license.txt
 translationsSource = $$PWD/langs/*.qm
 resourcesTarget = $$DESTDIR/
@@ -23,12 +24,14 @@ resourcesTarget = $$DESTDIR/
 win32 {
     settingsSource = $$replace(settingsSource, /, \\)
     logoSource = $$replace(logoSource, /, \\)
+    progressSource = $$replace(progressSource, /, \\)
     licenseSource = $$replace(licenseSource, /, \\)
     translationsSource = $$replace(translationsSource, /, \\)
     resourcesTarget = $$replace(resourcesTarget, /, \\)
     system(mkdir $$resourcesTarget)
     system(copy /Y /V $$settingsSource $$resourcesTarget)
     system(copy /Y /V $$logoSource $$resourcesTarget)
+    system(copy /Y /V $$progressSource $$resourcesTarget)
     system(copy /Y /V $$licenseSource $$resourcesTarget)
     system(xcopy /Y /V $$translationsSource $$resourcesTarget\\langs\\)
 }

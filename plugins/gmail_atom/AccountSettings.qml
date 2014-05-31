@@ -219,7 +219,7 @@ Rectangle {
         }
     }
 
-    //  NOTE: This slot may be called after starting active plugins, because deleting of component is dalayed
+    //  NOTE: This slot may be called after starting active plugins, because deleting of component is delayed
     Component.onDestruction: {
         console.log("Finish configuration of GMailAtom plugin")
         GmailAtom.error.disconnect(displayError)

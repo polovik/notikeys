@@ -27,9 +27,12 @@ build-*-Release
 /device/Makefile*
 /device/debug
 /device/release
+/*-debug
+/*-release
 
 # Qt creator's temp file
 *.pro.user*
+*.qbs.user*
 
 # Compiled translations
 *.qm

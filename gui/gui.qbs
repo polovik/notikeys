@@ -6,7 +6,6 @@ Product {
     Probe {
         id: updateTranslationsList
         configure: {
-            someString = "one";
             var process = new Process();
             process.exec("linguist_up", ["-verbose", "-recursive", "gui", "-ts", "gui/langs/lang_ru_RU.ts"]);
             print("lupdate: " + process.readStdOut() + process.readStdErr());

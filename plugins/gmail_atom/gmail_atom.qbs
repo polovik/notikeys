@@ -7,7 +7,7 @@ Product {
         id: updateTranslationsList
         configure: {
             var process = new Process();
-            process.exec("linguist_up", ["-verbose", "-no-recursive", "plugins/gmail_atom", "-ts", "plugins/gmail_atom/langs/lang_ru_RU.ts"]);
+            process.exec("lupdate", ["-verbose", "-no-recursive", "plugins/gmail_atom", "-ts", "plugins/gmail_atom/langs/lang_ru_RU.ts"]);
             print("lupdate: " + process.readStdOut() + process.readStdErr());
             process.close();
             found = false;
@@ -34,17 +34,22 @@ Product {
     cpp.includePaths: ["../../"]
 
     //  Store build in separate folder with all depends. Executed by "qbs install"
-    destinationDirectory: "../build/plugins/gmail_atom"
+    Group {
+        name: "Generated plugin"
+        fileTagsFilter: "dynamiclibrary"
+        qbs.install: true
+        qbs.installDir: "./plugins/gmail_atom"
+    }
     Group {
         name: "QML resources"
         files: ["AccountSettings.qml", "gmail.png", "checking.gif", "license.txt"]
         qbs.install: true
-        qbs.installDir: "../../build/plugins/gmail_atom"
+        qbs.installDir: "./plugins/gmail_atom"
     }
     Group {
         name: "Language resources"
         fileTagsFilter: "qm"
         qbs.install: true
-        qbs.installDir: "../../build/plugins/gmail_atom/langs"
+        qbs.installDir: "./plugins/gmail_atom/langs"
     }
 }

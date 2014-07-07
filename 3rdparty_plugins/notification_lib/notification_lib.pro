@@ -4,7 +4,7 @@ QT += network
 TARGET = NotificationLib
 TEMPLATE = lib
 CONFIG += shared
-
+INCLUDEPATH += ../../gui/
 QMAKE_LFLAGS += -static
 
 SOURCES += NotificationLib.cpp
@@ -15,5 +15,5 @@ HEADERS += NotificationLib.h
 #   LIBS = ... -lQt5Network -lQt5Core -lz -lole32 -luuid -lwsock32
 win32 {
     LIBS += "-Le:\zlib-1.2.8" -lz
-    LIBS += "-Le:\mingw32\i686-w64-mingw32\lib" -lole32 -luuid -lwsock32
+    LIBS += "-Le:\Qt_own\mingw32\i686-w64-mingw32\lib" -lole32 -luuid -lwsock32
 }

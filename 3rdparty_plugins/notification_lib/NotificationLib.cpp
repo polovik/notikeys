@@ -1,7 +1,7 @@
 #include <QDebug>
 #include <QLocalSocket>
 #include "NotificationLib.h"
-#include "../gui/ExternalPluginProtocol.h"
+#include "ExternalPluginProtocol.h"
 
 void notify(int pluginUID, int eventsCount)
 {

@@ -29,6 +29,11 @@ Product {
         files: "qml/*.qml"
     }
     Group {
+        name: "Images"
+        condition: true
+        files: "qml/images/*"
+    }
+    Group {
         name: "Language packs"
         condition: true
         files: "langs/*.ts"

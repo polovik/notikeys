@@ -6,7 +6,7 @@
 #include <QDir>
 #include <QQmlContext>
 #include <QtGui/QGuiApplication>
-#include "qtquick2applicationviewer.h"
+#include "QtQuick2ApplicationViewer.h"
 #include "PluginsManager.h"
 #include "ExternalPluginServer.h"
 #include "../device/Settings.h"

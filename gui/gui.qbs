@@ -22,7 +22,7 @@ Product {
     Depends { name: "libdevice" }
     
     //  Sources
-    files: ["main.cpp", "PluginsManager.cpp", "ExternalPluginServer.cpp", "qtquick2applicationviewer/qtquick2applicationviewer.cpp", "PluginsManager.h", "PluginInterface.h", "ExternalPluginServer.h", "ExternalPluginProtocol.h", "qtquick2applicationviewer/qtquick2applicationviewer.h" ]
+    files: ["main.cpp", "PluginsManager.cpp", "ExternalPluginServer.cpp", "QtQuick2ApplicationViewer.cpp", "PluginsManager.h", "PluginInterface.h", "ExternalPluginServer.h", "ExternalPluginProtocol.h", "QtQuick2ApplicationViewer.h" ]
     Group {
         name: "QML files"
         condition: true
@@ -33,7 +33,7 @@ Product {
         condition: true
         files: "langs/*.ts"
     }
-    cpp.includePaths: ['.', "qtquick2applicationviewer"]
+    cpp.includePaths: ['.']
 
     //  Store build in separate folder with all depends. Executed by "qbs install"
     Group {

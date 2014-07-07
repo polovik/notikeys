@@ -8,7 +8,7 @@
   may offer an updated version of it.
 */
 
-#include "qtquick2applicationviewer.h"
+#include "QtQuick2ApplicationViewer.h"
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDir>

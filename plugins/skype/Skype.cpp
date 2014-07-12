@@ -1,11 +1,14 @@
 #include <QDebug>
 #include <QQmlContext>
+#include <QProcess>
+#include <QSettings>
 #include "skype.h"
 #include "device/Settings.h"
 #include <windows.h>
 #include <winuser.h>
 
 static int m_messages;
+static HWND m_hwndSkype;
 
 Skype::Skype(QObject *parent) : QObject(parent)
 {
@@ -24,11 +27,6 @@ void Skype::loadPlugin()
 void Skype::exportToQML(QQmlContext *context)
 {
     context->setContextProperty("Skype", this);
-}
-
-void Skype::handleButtonPressing()
-{
-    qDebug() << "Maximize Skype";
 }
 
 void Skype::start()
@@ -66,6 +64,7 @@ BOOL CALLBACK detectSkype(HWND hwnd, LPARAM lParam)
         qDebug() << windowText;
         if (windowText.contains("Skype")) {
             m_messages = 0;
+            m_hwndSkype = hwnd;
             int numStart = windowText.indexOf("[");
             int numEnd = windowText.indexOf("]");
             int length = numEnd - numStart - 1;
@@ -103,4 +102,65 @@ void Skype::check()
         emit eventsCount(m_messages);
         setLedMode(LED_RARE_BLINK);
     }
+}
+
+#if 0
+static HWND m_hwndTray;
+
+BOOL CALLBACK detectTray(HWND hwnd, LPARAM lParam)
+{
+    Q_UNUSED(lParam);
+    int nMaxCount = 100;
+    LPTSTR lpClassName = new TCHAR[nMaxCount];
+    int result = GetClassName(hwnd, lpClassName, nMaxCount);
+    QString className = QString::fromWCharArray(lpClassName, result);
+    delete[] lpClassName;
+    if (className == "Shell_TrayWnd") {
+        m_hwndTray = hwnd;
+        qDebug() << "Detected windows tray area";
+        return FALSE;   //  Stop enumeration
+    }
+    return TRUE; // Continue enumeration
+}
+#endif
+
+void Skype::handleButtonPressing()
+{
+    // Branch: HKEY_CURRENT_USER\Software\Skype\Phone Field: SkypePath
+    QSettings skypeSettings("Skype", "Phone");
+    QString exe = skypeSettings.value("SkypePath").toString();
+    exe = "\"" + exe + "\"";
+
+    bool started = QProcess::startDetached(exe);
+    qDebug() << "Skype is maximized:" << started;
+
+#if 0
+    m_hwndSkype = NULL;
+    EnumWindows(&detectSkype, 0);
+    if (m_hwndSkype == NULL) {
+        qWarning() << "Skype is missing";
+        return;
+    }
+
+    m_hwndTray = NULL;
+    EnumWindows(&detectTray, 0);
+    if (m_hwndTray == NULL) {
+        qWarning() << "Can't find windows tray area";
+        return;
+    }
+    DWORD hTrayThread = GetWindowThreadProcessId(m_hwndTray, NULL);
+    qDebug() << "Tray with handle" << m_hwndTray << "is executed in thread" << hTrayThread;
+
+    HWND hWndCurrentWindow = GetForegroundWindow();
+    DWORD hCurrentWindowThread = GetWindowThreadProcessId(hWndCurrentWindow, NULL);
+    qDebug() << "Notikeys app has handle" << hWndCurrentWindow << "and is executed in thread" << hCurrentWindowThread;
+
+    ShowWindow(m_hwndSkype, SW_RESTORE);
+    AttachThreadInput(hCurrentWindowThread, hTrayThread, TRUE);
+    SetActiveWindow(m_hwndSkype);
+    BringWindowToTop(m_hwndSkype);
+    SetFocus(m_hwndSkype);
+    SetForegroundWindow(m_hwndSkype);
+    AttachThreadInput(hCurrentWindowThread, hTrayThread, FALSE);
+#endif
 }

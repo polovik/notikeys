@@ -134,10 +134,15 @@ void GmailAtom::readData(QNetworkReply *reply)
         else
             description = reply->errorString();
         emit error(description);
+        setLedMode(LED_FREQUENT_BLINK);
     } else {
         int newMessagesCount = parseXml(data);
         qDebug() << "New messages:" << newMessagesCount;
         emit feedLoaded(newMessagesCount);
+        if (newMessagesCount > 0)
+            setLedMode(LED_RARE_BLINK);
+        else
+            setLedMode(LED_OFF);
     }
     m_manager->clearAccessCache();
     reply->deleteLater();

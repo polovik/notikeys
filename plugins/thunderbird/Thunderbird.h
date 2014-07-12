@@ -29,6 +29,7 @@ public slots:
     void check();
 
 private slots:
+    void notifyAddonMissing();
 
 private:
     static const int ADDON_PRESENCE_TIMEOUT_MS = 10000; // 2 * 5000("extensions.notikeys.pollTimeout")

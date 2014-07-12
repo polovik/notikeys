@@ -15,6 +15,7 @@
 static QTextCodec *logCodec = NULL;
 static FILE *logStream = NULL;
 QString g_logFilePath = "";
+Device g_device;
 
 /** @brief For convenient parsing log files, messages have to be formatted as:
  *      level: message (`placeInSource`)
@@ -84,9 +85,8 @@ int main(int argc, char *argv[])
     QObject::connect(&pluginServer, SIGNAL(eventsGot(qint32, qint32)),
                      &pluginsManager, SLOT(processExternalEvents(qint32, qint32)));
 
-    Device device;
-    QObject::connect(&device, SIGNAL(buttonPressed(qint32)),
-                     &pluginsManager, SLOT(processButtonPressing(qint32)));
+    QObject::connect(&g_device, SIGNAL(buttonPressed(QString)),
+                     &pluginsManager, SLOT(processButtonPressing(QString)));
 
     Settings settings;
     viewer.rootContext()->setContextProperty("Settings", &settings);

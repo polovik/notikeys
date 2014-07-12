@@ -26,6 +26,11 @@ void Skype::exportToQML(QQmlContext *context)
     context->setContextProperty("Skype", this);
 }
 
+void Skype::handleButtonPressing()
+{
+    qDebug() << "Maximize Skype";
+}
+
 void Skype::start()
 {
     Settings settings;
@@ -88,11 +93,14 @@ void Skype::check()
     if (m_messages == -1) {
         qDebug() << "Skype isn't run";
         emit skypeIsAbsent();
+        setLedMode(LED_FREQUENT_BLINK);
     } else if (m_messages == 0) {
         qDebug() << "Skype is present. No new events";
         emit eventsCount(m_messages);
+        setLedMode(LED_OFF);
     } else {
         qDebug() << "Skype is present. Events count =" << m_messages;
         emit eventsCount(m_messages);
+        setLedMode(LED_RARE_BLINK);
     }
 }

@@ -54,8 +54,6 @@ public:
     explicit PluginsManager(QQmlContext *ctx, QObject *parent = 0);
     const QImage getPluginLogo(QString uid) const;
 
-signals:
-
 public slots:
     bool loadPlugins();
     void startActivePlugins();
@@ -63,6 +61,7 @@ public slots:
     void activatePlugin(QString uid);
     void loadLanguage(QString lang);
     void processExternalEvents(qint32 pluginUid, qint32 eventsCount);
+    void processButtonPressing(QString pluginUid);
 
 private:
     void updatePluginsModel();
@@ -70,6 +69,8 @@ private:
     QQmlContext *m_qmlContext;
     QMap<QString, PluginInfo *> m_plugins; // key - UID, value - reference to plugin's description
     QTranslator *m_mainMenuTranslator;
+
+signals:
 };
 
 //------------------------------------------------------------------------------

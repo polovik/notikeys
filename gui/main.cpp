@@ -10,10 +10,12 @@
 #include "PluginsManager.h"
 #include "ExternalPluginServer.h"
 #include "../device/Settings.h"
+#include "../device/Device.h"
 
 static QTextCodec *logCodec = NULL;
 static FILE *logStream = NULL;
 QString g_logFilePath = "";
+Device g_device;
 
 /** @brief For convenient parsing log files, messages have to be formatted as:
  *      level: message (`placeInSource`)
@@ -82,6 +84,9 @@ int main(int argc, char *argv[])
     pluginServer.startServer();
     QObject::connect(&pluginServer, SIGNAL(eventsGot(qint32, qint32)),
                      &pluginsManager, SLOT(processExternalEvents(qint32, qint32)));
+
+    QObject::connect(&g_device, SIGNAL(buttonPressed(QString)),
+                     &pluginsManager, SLOT(processButtonPressing(QString)));
 
     Settings settings;
     viewer.rootContext()->setContextProperty("Settings", &settings);

@@ -10,6 +10,7 @@
 #include <QtGui/QGuiApplication>
 #include "PluginsManager.h"
 #include "PluginInterface.h"
+#include "../device/Device.h"
 
 PluginsManager::PluginsManager(QQmlContext *ctx, QObject *parent) :
     QObject(parent), m_qmlContext(ctx)
@@ -39,6 +40,12 @@ const QImage PluginsManager::getPluginLogo(QString uid) const
 
     QImage logo(fi.absoluteFilePath());
     return logo;
+}
+
+static void setLedMode(QString pluginUid, LedMode_e mode)
+{
+    extern Device g_device;
+    g_device.setLedMode(pluginUid, mode);
 }
 
 bool PluginsManager::loadPlugins()
@@ -91,6 +98,7 @@ bool PluginsManager::loadPlugins()
                     qDebug() << "Plugin" << metaData.value(NS_PLUGIN_INFO::fieldTitle).toString() << "has been successfully loaded";
                     plugin->loadPlugin();
                     plugin->exportToQML(m_qmlContext);
+                    plugin->setLedControlFunction(&setLedMode, uid);
                     QString settingsfileName = metaData.value(NS_PLUGIN_INFO::fieldSettingsFile).toString();
                     QFileInfo fi(pluginDir, settingsfileName);
                     if (!fi.exists()) {
@@ -218,6 +226,18 @@ void PluginsManager::processExternalEvents(qint32 pluginUid, qint32 eventsCount)
     PluginInfo *info = m_plugins.value(uid);
     PluginInterface *interface = info->m_plugin;
     interface->analizeExternalEvents(eventsCount);
+}
+
+void PluginsManager::processButtonPressing(QString pluginUid)
+{
+    if (!m_plugins.contains(pluginUid)) {
+        qWarning() << "Plugin with uid" << pluginUid << "is missed";
+        Q_ASSERT(false);
+        return;
+    }
+    PluginInfo *info = m_plugins.value(pluginUid);
+    PluginInterface *interface = info->m_plugin;
+    interface->handleButtonPressing();
 }
 
 void PluginsManager::updatePluginsModel()

@@ -21,6 +21,7 @@ public:
     void loadPlugin();
     void exportToQML(QQmlContext *context);
     void analizeExternalEvents(qint32 eventsCount);
+    void handleButtonPressing();
 
 public slots:
     void start();
@@ -28,6 +29,7 @@ public slots:
     void check();
 
 private slots:
+    void notifyAddonMissing();
 
 private:
     static const int ADDON_PRESENCE_TIMEOUT_MS = 10000; // 2 * 5000("extensions.notikeys.pollTimeout")

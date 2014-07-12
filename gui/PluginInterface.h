@@ -16,6 +16,16 @@ const QString fieldLanguagePacks = "translations";
 
 class QQmlContext;
 
+typedef enum {
+    LED_OFF = 0,
+    LED_ON  = 1,
+    LED_SINGLE_BLINK    = 2,
+    LED_RARE_BLINK      = 3,
+    LED_FREQUENT_BLINK  = 4,
+    LED_BRIGHTNESS_GLIDING  = 5
+} LedMode_e;
+typedef void (*LedControlFunction)(QString, LedMode_e);
+
 class PluginInterface
 {
 public:
@@ -25,6 +35,13 @@ public:
     virtual void start() = 0;
     virtual void stop() = 0;
     virtual void analizeExternalEvents(qint32 eventsCount) = 0;
+    virtual void handleButtonPressing() = 0;
+    void setLedControlFunction(LedControlFunction func, QString pluginUid) { m_controlLed = func; m_uid = pluginUid; }
+    void setLedMode(LedMode_e mode) { m_controlLed(m_uid, mode); }
+
+private:
+    QString m_uid;
+    LedControlFunction m_controlLed;
 };
 
 

@@ -48,3 +48,8 @@ void Thunderbird::analizeExternalEvents(qint32 eventsCount)
     int events = eventsCount;
     emit messagesCount(events);
 }
+
+void Thunderbird::handleButtonPressing()
+{
+    qDebug() << "Maximize Thunderbird";
+}

@@ -10,6 +10,7 @@
 #include "PluginsManager.h"
 #include "ExternalPluginServer.h"
 #include "../device/Settings.h"
+#include "../device/Device.h"
 
 static QTextCodec *logCodec = NULL;
 static FILE *logStream = NULL;
@@ -82,6 +83,10 @@ int main(int argc, char *argv[])
     pluginServer.startServer();
     QObject::connect(&pluginServer, SIGNAL(eventsGot(qint32, qint32)),
                      &pluginsManager, SLOT(processExternalEvents(qint32, qint32)));
+
+    Device device;
+    QObject::connect(&device, SIGNAL(buttonPressed(qint32)),
+                     &pluginsManager, SLOT(processButtonPressing(qint32)));
 
     Settings settings;
     viewer.rootContext()->setContextProperty("Settings", &settings);

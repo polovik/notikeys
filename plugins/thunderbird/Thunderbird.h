@@ -21,6 +21,7 @@ public:
     void loadPlugin();
     void exportToQML(QQmlContext *context);
     void analizeExternalEvents(qint32 eventsCount);
+    void handleButtonPressing();
 
 public slots:
     void start();

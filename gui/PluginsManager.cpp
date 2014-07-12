@@ -220,6 +220,19 @@ void PluginsManager::processExternalEvents(qint32 pluginUid, qint32 eventsCount)
     interface->analizeExternalEvents(eventsCount);
 }
 
+void PluginsManager::processButtonPressing(qint32 pluginUid)
+{
+    QString uid = QString::number(pluginUid);
+    if (!m_plugins.contains(uid)) {
+        qWarning() << "Plugin with uid" << pluginUid << "is missed";
+        Q_ASSERT(false);
+        return;
+    }
+    PluginInfo *info = m_plugins.value(uid);
+    PluginInterface *interface = info->m_plugin;
+    interface->handleButtonPressing();
+}
+
 void PluginsManager::updatePluginsModel()
 {
     QList<QObject*> pluginsList;

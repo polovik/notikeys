@@ -26,6 +26,11 @@ void Skype::exportToQML(QQmlContext *context)
     context->setContextProperty("Skype", this);
 }
 
+void Skype::handleButtonPressing()
+{
+    qDebug() << "Maximize Skype";
+}
+
 void Skype::start()
 {
     Settings settings;

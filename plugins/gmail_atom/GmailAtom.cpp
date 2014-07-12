@@ -38,6 +38,11 @@ void GmailAtom::exportToQML(QQmlContext *context)
     context->setContextProperty("GmailAtom", this);
 }
 
+void GmailAtom::handleButtonPressing()
+{
+    qDebug() << "Open mailbox";
+}
+
 void GmailAtom::start()
 {
     Settings settings;

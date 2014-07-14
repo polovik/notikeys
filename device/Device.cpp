@@ -9,6 +9,6 @@ Device::Device(QObject *parent) :
 
 void Device::setLedMode(QString pluginUid, LedMode_e mode)
 {
-    qDebug() << "Set led mode" << mode << "for plugin" << pluginUid;
+    qDebug() << "Set led mode" << QString::number(mode) << "for plugin" << pluginUid;
     emit buttonPressed(pluginUid);
 }

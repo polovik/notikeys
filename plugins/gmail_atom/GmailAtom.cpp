@@ -7,6 +7,8 @@
 #include <QSslConfiguration>
 #include <QQmlContext>
 #include <QXmlStreamReader>
+#include <QDesktopServices>
+#include <QUrl>
 #include "GmailAtom.h"
 #include "device/Settings.h"
 
@@ -41,6 +43,14 @@ void GmailAtom::exportToQML(QQmlContext *context)
 void GmailAtom::handleButtonPressing()
 {
     qDebug() << "Open mailbox";
+    // TODO specify custom account
+//    Settings settings;
+//    QString user = settings.get("GmailAtom/account");
+    QUrl url(QString("https://mail.google.com"), QUrl::TolerantMode);
+    bool started = QDesktopServices::openUrl(url);
+    if (!started) {
+        qCritical() << "Can't start browser and display mailbox";
+    }
 }
 
 void GmailAtom::start()

@@ -36,3 +36,11 @@ build-*-Release
 
 # Compiled translations
 *.qm
+
+# MPLAB's temp files
+/keyboard/build
+/keyboard/dist
+/keyboard/funclist
+/keyboard/nbproject/Makefile*
+/keyboard/nbproject/Package-default.bash
+/keyboard/nbproject/private

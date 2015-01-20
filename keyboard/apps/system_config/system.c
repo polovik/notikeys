@@ -22,7 +22,7 @@
 
 #include <system.h>
 #include <system_config.h>
-#include <usb/usb.h>
+#include <usb.h>
 
 /** CONFIGURATION Bits **********************************************/
 #pragma config PLLDIV   = 5         // (20 MHz crystal on PICDEM FS USB board)

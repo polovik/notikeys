@@ -27,9 +27,9 @@
 #include <app_device_cdc_basic.h>
 #include <app_led_usb_status.h>
 
-#include <usb/usb.h>
-#include <usb/usb_device.h>
-#include <usb/usb_device_cdc.h>
+#include <usb.h>
+#include <usb_device.h>
+#include <usb_device_cdc.h>
 
 /********************************************************************
  * Function:        void main(void)

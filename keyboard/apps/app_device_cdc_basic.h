@@ -26,7 +26,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include <usb/usb_device_cdc.h>
+#include <usb_device_cdc.h>
 
 /*********************************************************************
 * Function: void APP_DeviceCDCBasicDemoInitialize(void);

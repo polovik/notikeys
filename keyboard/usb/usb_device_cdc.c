@@ -103,8 +103,8 @@
 
 /** I N C L U D E S **********************************************************/
 #include <system.h>
-#include <usb/usb.h>
-#include <usb/usb_device_cdc.h>
+#include <usb.h>
+#include <usb_device_cdc.h>
 
 #ifdef USB_USE_CDC
 

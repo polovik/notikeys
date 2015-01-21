@@ -4,6 +4,13 @@
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
                    projectFiles="true">
+      <logicalFolder name="3rdparty_libs"
+                     displayName="3rdparty_libs"
+                     projectFiles="true">
+        <logicalFolder name="xprintf" displayName="xprintf" projectFiles="true">
+          <itemPath>3rdparty_libs/xprintf/xprintf.h</itemPath>
+        </logicalFolder>
+      </logicalFolder>
       <logicalFolder name="apps" displayName="apps" projectFiles="true">
         <logicalFolder name="system_config"
                        displayName="system_config"
@@ -41,6 +48,13 @@
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
+      <logicalFolder name="3rdparty_libs"
+                     displayName="3rdparty_libs"
+                     projectFiles="true">
+        <logicalFolder name="xprintf" displayName="xprintf" projectFiles="true">
+          <itemPath>3rdparty_libs/xprintf/xprintf.c</itemPath>
+        </logicalFolder>
+      </logicalFolder>
       <logicalFolder name="apps" displayName="apps" projectFiles="true">
         <logicalFolder name="system_config"
                        displayName="system_config"
@@ -72,6 +86,7 @@
     <Elem>apps</Elem>
     <Elem>bsp</Elem>
     <Elem>usb</Elem>
+    <Elem>3rdparty_libs</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
@@ -109,7 +124,7 @@
         <property key="asmlist" value="true"/>
         <property key="define-macros" value=""/>
         <property key="extra-include-directories"
-                  value="apps\system_config;bsp;usb;apps"/>
+                  value="apps\system_config;bsp;usb;apps;3rdparty_libs\xprintf"/>
         <property key="identifier-length" value="255"/>
         <property key="operation-mode" value="free"/>
         <property key="opt-xc8-compiler-strict_ansi" value="false"/>

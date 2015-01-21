@@ -25,14 +25,14 @@ static char *outptr;
 
 void xputc (char c)
 {
-	if (_CR_CRLF && c == '\n') xputc('\r');		/* CR -> CRLF */
+//	if (_CR_CRLF && c == '\n') xputc('\r');		/* CR -> CRLF */
 
 	if (outptr) {
 		*outptr++ = (unsigned char)c;
 		return;
 	}
 
-	if (xfunc_out) xfunc_out((unsigned char)c);
+//	if (xfunc_out) xfunc_out((unsigned char)c);
 }
 
 

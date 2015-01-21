@@ -33,6 +33,7 @@
 #include <app_device_cdc_basic.h>
 #include <usb_config.h>
 #include <adc.h>
+#include <xprintf.h>
 
 /** VARIABLES ******************************************************/
 
@@ -98,21 +99,8 @@ void APP_DeviceCDCBasicDemoTasks()
             if(mUSBUSARTIsTxTrfReady() == true)
             {
                 uint16_t value = ADC_Read10bit(ADC_CHANNEL_0);
-                strcpy(messageADC, "ADC=");
-                uint8_t i;
-                for (i = 4; i > 0; i--) {
-                    uint16_t rest = value / 16;
-                    uint8_t cipher = value - (rest * 16);
-                    if (cipher < 10)
-                        cipher = cipher + 0x30;
-                    else
-                        cipher = (cipher - 10) + 0x41;
-                    messageADC[4 + i - 1] = cipher;
-                    value = rest;
-                }
-                messageADC[4 + 4] = '\r';
-                messageADC[4 + 5] = '\n';
-                messageADC[4 + 6] = '\0';
+                uint32_t percent = ((uint32_t)100 * value) / 0x03FF;
+                xsprintf(messageADC, "ADC=%D-%D\r\n", value, percent);
                 putsUSBUSART(messageADC);
                 buttonPressed = true;
             }

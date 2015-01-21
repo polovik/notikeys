@@ -23,6 +23,7 @@
 #include <system.h>
 #include <system_config.h>
 #include <usb.h>
+#include <adc.h>
 
 /** CONFIGURATION Bits **********************************************/
 #pragma config PLLDIV   = 5         // (20 MHz crystal on PICDEM FS USB board)
@@ -84,6 +85,8 @@ void SYSTEM_Initialize( SYSTEM_STATE state )
         case SYSTEM_STATE_USB_START:
             LED_Enable(LED_USB_DEVICE_STATE);
             BUTTON_Enable(BUTTON_DEVICE_CDC_BASIC_DEMO);
+            ADC_Enable(ADC_CHANNEL_0);
+            ADC_SetConfiguration(ADC_CONFIGURATION_DEFAULT);
             break;
 			
         case SYSTEM_STATE_USB_SUSPEND: 

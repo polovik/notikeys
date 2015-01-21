@@ -32,11 +32,13 @@
 #include <app_led_usb_status.h>
 #include <app_device_cdc_basic.h>
 #include <usb_config.h>
+#include <adc.h>
 
 /** VARIABLES ******************************************************/
 
 static bool buttonPressed;
 static char buttonMessage[] = "Button pressed.\r\n";
+static char messageADC[20];
 static uint8_t readBuffer[CDC_DATA_OUT_EP_SIZE];
 static uint8_t writeBuffer[CDC_DATA_IN_EP_SIZE];
 
@@ -95,7 +97,23 @@ void APP_DeviceCDCBasicDemoTasks()
              */
             if(mUSBUSARTIsTxTrfReady() == true)
             {
-                putrsUSBUSART(buttonMessage);
+                uint16_t value = ADC_Read10bit(ADC_CHANNEL_0);
+                strcpy(messageADC, "ADC=");
+                uint8_t i;
+                for (i = 4; i > 0; i--) {
+                    uint16_t rest = value / 16;
+                    uint8_t cipher = value - (rest * 16);
+                    if (cipher < 10)
+                        cipher = cipher + 0x30;
+                    else
+                        cipher = (cipher - 10) + 0x41;
+                    messageADC[4 + i - 1] = cipher;
+                    value = rest;
+                }
+                messageADC[4 + 4] = '\r';
+                messageADC[4 + 5] = '\n';
+                messageADC[4 + 6] = '\0';
+                putsUSBUSART(messageADC);
                 buttonPressed = true;
             }
         }

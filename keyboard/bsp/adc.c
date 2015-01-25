@@ -78,7 +78,11 @@ uint8_t ADC_ReadPercentage
 
     switch(channel)
     {
-        case ADC_CHANNEL_0:
+        case ADC_CHANNEL_1:
+            break;
+        case ADC_CHANNEL_2:
+            break;
+        case ADC_CHANNEL_3:
             break;
         default:
             return 0xFF;
@@ -118,13 +122,18 @@ uint16_t ADC_Read10bit(ADC_CHANNEL channel)
 
     switch(channel)
     {
-        case ADC_CHANNEL_0:
+        case ADC_CHANNEL_1:
+            ADCON0bits.CHS = 0x0;
+            break;
+        case ADC_CHANNEL_2:
+            ADCON0bits.CHS = 0x1;
+            break;
+        case ADC_CHANNEL_3:
+            ADCON0bits.CHS = 0x2;
             break;
         default:
             return 0xFFFF;
     }
-
-    ADCON0bits.CHS = channel;
 
     ADCON0bits.GO = 1;              // Start AD conversion
     while(ADCON0bits.NOT_DONE);     // Wait for conversion
@@ -153,8 +162,16 @@ bool ADC_Enable(ADC_CHANNEL channel)
 {
     switch(channel)
     {
-        case ADC_CHANNEL_0:
+        case ADC_CHANNEL_1:
             TRISAbits.TRISA0 = PIN_INPUT;
+            return true;
+
+        case ADC_CHANNEL_2:
+            TRISAbits.TRISA1 = PIN_INPUT;
+            return true;
+
+        case ADC_CHANNEL_3:
+            TRISAbits.TRISA2 = PIN_INPUT;
             return true;
 
         default:
@@ -179,7 +196,7 @@ bool ADC_SetConfiguration(ADC_CONFIGURATION configuration)
     if(configuration == ADC_CONFIGURATION_DEFAULT)
     {
         ADCON0=0x01;
-        ADCON1bits.PCFG = 0b1110;
+        ADCON1bits.PCFG = 0b1100;
         ADCON2=0x3C;
         ADCON2bits.ADFM = 1;
         return true;

@@ -39,7 +39,7 @@
 
 static bool buttonPressed;
 static char buttonMessage[] = "Button pressed.\r\n";
-static char messageADC[20];
+static char messageADC[30];
 static uint8_t readBuffer[CDC_DATA_OUT_EP_SIZE];
 static uint8_t writeBuffer[CDC_DATA_IN_EP_SIZE];
 
@@ -84,10 +84,13 @@ void APP_DeviceCDCBasicDemoInitialize()
 ********************************************************************/
 void APP_DeviceCDCBasicDemoTasks()
 {
+    bool button1pressed = BUTTON_IsPressed(BUTTON_S1);
+    bool button2pressed = BUTTON_IsPressed(BUTTON_S2);
+    bool button3pressed = BUTTON_IsPressed(BUTTON_S3);
     /* If the user has pressed the button associated with this demo, then we
      * are going to send a "Button Pressed" message to the terminal.
      */
-    if(BUTTON_IsPressed(BUTTON_DEVICE_CDC_BASIC_DEMO) == true)
+    if (button1pressed || button2pressed || button3pressed)
     {
         /* Make sure that we only send the message once per button press and
          * not continuously as the button is held.
@@ -98,9 +101,19 @@ void APP_DeviceCDCBasicDemoTasks()
              */
             if(mUSBUSARTIsTxTrfReady() == true)
             {
-                uint16_t value = ADC_Read10bit(ADC_CHANNEL_0);
-                uint32_t percent = ((uint32_t)100 * value) / 0x03FF;
-                xsprintf(messageADC, "ADC=%D-%D\r\n", value, percent);
+                if (button1pressed) {
+                    uint16_t value = ADC_Read10bit(ADC_CHANNEL_1);
+                    uint32_t percent = ((uint32_t)100 * value) / 0x03FF;
+                    xsprintf(messageADC, "Btn1=%D-%D\r\n", value, percent);
+                } else if (button2pressed) {
+                    uint16_t value = ADC_Read10bit(ADC_CHANNEL_2);
+                    uint32_t percent = ((uint32_t)100 * value) / 0x03FF;
+                    xsprintf(messageADC, "Btn2=%D-%D\r\n", value, percent);
+                } else {
+                    uint16_t value = ADC_Read10bit(ADC_CHANNEL_3);
+                    uint32_t percent = ((uint32_t)100 * value) / 0x03FF;
+                    xsprintf(messageADC, "Btn3=%D-%D\r\n", value, percent);
+                }
                 putsUSBUSART(messageADC);
                 buttonPressed = true;
             }

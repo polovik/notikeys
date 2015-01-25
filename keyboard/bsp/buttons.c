@@ -53,12 +53,13 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 // Section: File Scope or Global Constants
 // *****************************************************************************
 // *****************************************************************************
-//      S1       MCLR reset
-#define S2_PORT  PORTBbits.RB4      //AN11
-#define S3_PORT  PORTBbits.RB5      
+#define S1_PORT  PORTBbits.RB2
+#define S2_PORT  PORTBbits.RB3
+#define S3_PORT  PORTBbits.RB4
 
-#define S2_TRIS  TRISBbits.TRISB4
-#define S3_TRIS  TRISBbits.TRISB5
+#define S1_TRIS  TRISBbits.TRISB2
+#define S2_TRIS  TRISBbits.TRISB3
+#define S3_TRIS  TRISBbits.TRISB4
 
 #define BUTTON_PRESSED      0
 #define BUTTON_NOT_PRESSED  1
@@ -96,6 +97,9 @@ bool BUTTON_IsPressed(BUTTON button)
 {
     switch(button)
     {
+        case BUTTON_S1:
+            return ( (S1_PORT == BUTTON_PRESSED) ? true : false);
+
         case BUTTON_S2:
             return ( (S2_PORT == BUTTON_PRESSED) ? true : false);
 			
@@ -129,10 +133,14 @@ void BUTTON_Enable(BUTTON button)
 {
     switch(button)
     {
+        case BUTTON_S1:
+            S1_TRIS = PIN_INPUT;
+            break;
+
         case BUTTON_S2:
             S2_TRIS = PIN_INPUT;
             break;
-			
+
         case BUTTON_S3:
             S3_TRIS = PIN_INPUT;
             break;

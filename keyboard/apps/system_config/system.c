@@ -84,8 +84,12 @@ void SYSTEM_Initialize( SYSTEM_STATE state )
     {
         case SYSTEM_STATE_USB_START:
             LED_Enable(LED_USB_DEVICE_STATE);
-            BUTTON_Enable(BUTTON_DEVICE_CDC_BASIC_DEMO);
-            ADC_Enable(ADC_CHANNEL_0);
+            BUTTON_Enable(BUTTON_S1);
+            BUTTON_Enable(BUTTON_S2);
+            BUTTON_Enable(BUTTON_S3);
+            ADC_Enable(ADC_CHANNEL_1);
+            ADC_Enable(ADC_CHANNEL_2);
+            ADC_Enable(ADC_CHANNEL_3);
             ADC_SetConfiguration(ADC_CONFIGURATION_DEFAULT);
             break;
 			

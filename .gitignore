@@ -44,3 +44,6 @@ build-*-Release
 /keyboard/nbproject/Makefile*
 /keyboard/nbproject/Package-default.bash
 /keyboard/nbproject/private
+
+# Proteus's backup files
+/keyboard/schematic/*.DBK

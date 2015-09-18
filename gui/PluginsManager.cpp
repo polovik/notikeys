@@ -44,8 +44,8 @@ const QImage PluginsManager::getPluginLogo(QString uid) const
 
 static void setLedMode(QString pluginUid, LedMode_e mode)
 {
-    extern Device g_device;
-    g_device.setLedMode(pluginUid, mode);
+//    extern Device g_device;
+//    g_device.setLedMode(pluginUid, mode);
 }
 
 bool PluginsManager::loadPlugins()

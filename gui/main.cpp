@@ -10,12 +10,11 @@
 #include "PluginsManager.h"
 #include "ExternalPluginServer.h"
 #include "../device/Settings.h"
-#include "../device/Device.h"
+#include "../device/FSM.h"
 
 static QTextCodec *logCodec = NULL;
 static FILE *logStream = NULL;
 QString g_logFilePath = "";
-Device g_device;
 
 /** @brief For convenient parsing log files, messages have to be formatted as:
  *      level: message (`placeInSource`)
@@ -73,7 +72,7 @@ int main(int argc, char *argv[])
     }
     logCodec = QTextCodec::codecForName("Windows-1251");
     qInstallMessageHandler(logging);
-    qDebug() << "Start notikeys";
+    qDebug() << "Start notikeys. Write log to" << g_logFilePath;
 
     QtQuick2ApplicationViewer viewer;
 
@@ -89,10 +88,10 @@ int main(int argc, char *argv[])
     QObject::connect(&pluginServer, SIGNAL(eventsGot(qint32, qint32)),
                      &pluginsManager, SLOT(processExternalEvents(qint32, qint32)));
 
-    QObject::connect(&g_device, SIGNAL(buttonPressed(QString)),
-                     &pluginsManager, SLOT(processButtonPressing(QString)));
+//    QObject::connect(&g_device, SIGNAL(buttonPressed(QString)),
+//                     &pluginsManager, SLOT(processButtonPressing(QString)));
 
-    g_device.init();
+//    g_device.init();
     Settings settings;
     viewer.rootContext()->setContextProperty("Settings", &settings);
 
@@ -101,6 +100,8 @@ int main(int argc, char *argv[])
 
     viewer.setMainQmlFile(QStringLiteral("qml/main.qml"));
     viewer.showExpanded();
+
+    FSM deviceFSM;
 
     return app.exec();
 }

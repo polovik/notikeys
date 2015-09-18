@@ -35,13 +35,13 @@ void Device::openDevice()
         if ((portInfo.vendorIdentifier() == NS_Device::DEVICE_USB_VID)
             && (portInfo.productIdentifier() == NS_Device::DEVICE_USB_PID)) {
             portName = portInfo.portName();
-            qDebug() << "Shutter's control device is found on" << portName;
+            qDebug() << "Keyboard is found on" << portName;
             break;
         }
     }
 
     if (portName.isEmpty()) {
-        qWarning() << "Shutter's control device is disconnected";
+        qWarning() << "Keyboard is disconnected";
         emit SIG_DEVICE_CLOSED();
         return;
     }

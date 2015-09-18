@@ -5,12 +5,16 @@
 #include <QThread>
 #include <QMutex>
 
+#ifdef _WIN32
+#include <Windows.h>
+#include <WinBase.h>
+#endif
+
 class QSerialPort;
 
 typedef enum {
     CONFIGURATION_UNKNOWN  = 0,
-    CONFIGURATION_CPRO41W  = 1,
-    CONFIGURATION_CS04M2   = 2
+    CONFIGURATION_SHUTTER  = 1
 } configuration_e;
 
 class UartPort : public QThread
@@ -25,26 +29,36 @@ public slots:
     void sendPacket(const QByteArray &packet);
     void close();
 
+signals:
+    void dataReceived(const QByteArray &packet);
+    void portOpened();
+    void portClosed();
+
 protected:
     void run() Q_DECL_OVERRIDE;
 
 private:
+    bool openPort();
     bool configurePort();
+    bool sendData();
+    QByteArray receiveData();
+    void closePort();
 
     configuration_e m_deviceType;
     int m_uartTimeoutMS;
     bool m_textProtocol;
+
+#ifdef _WIN32
+    HANDLE m_serialPort;
+#else
     QSerialPort *m_serialPort;
+#endif
+
     QByteArray m_transmitBuffer;
     QString m_portName;
     QMutex portMutex;
     QMutex transmitMutex;
-    bool needClosePort;
-
-signals:
-    void dataReceived(const QByteArray &packet);
-    void portOpened(bool success);
-    void portClosed();
+    bool m_needClosePort;
 };
 
 #endif // UARTPORT_H

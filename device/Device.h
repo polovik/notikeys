@@ -2,10 +2,9 @@
 #define DEVICE_H
 
 #include <QObject>
-#include <QTimer>
-#include "../gui/PluginInterface.h"
 
 class UartPort;
+
 class Device : public QObject
 {
     Q_OBJECT
@@ -16,19 +15,35 @@ public:
     void close();
 
 public slots:
-    void setLedMode(QString pluginUid, LedMode_e mode);
+    void openDevice();
+    void closeDevice();
+    void requestHandshake();
+    void requestConnect();
+    void requestStartCalibration();
+    void requestStopCalibration();
+    void requestProgramming();
+    void requestStartTesting();
+    void requestStopTesting();
+    void requestFlashing();
+    void requestReset();
 
 signals:
-    void buttonPressed(QString pluginUid);
+    void SIG_DEVICE_OPENED();
+    void SIG_DEVICE_CLOSED();
+    void SIG_HANDSHAKED();
+    void SIG_CONNECTED();
+    void SIG_CALIBRATION_INFO();
+    void SIG_CALIBRATION_STOPPED();
+    void SIG_SETTINGS_WRITTEN();
+    void SIG_TESTING_STOPPED();
+    void SIG_FLASHING_FINISHED();
+
 private slots:
     void parsePacket(const QByteArray &rawData);
-    void handleResponseTimeout();
 
 private:
     QString m_readBuffer;
-    const int TIMEOUT_RESPONSE_MS = 1000;
     UartPort* m_uartPort;
-    QTimer m_responseTimer;
 };
 
 #endif // DEVICE_H

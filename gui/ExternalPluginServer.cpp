@@ -21,9 +21,14 @@ bool ExternalPluginServer::startServer()
 
     m_server = new QLocalServer;
     if (m_server->listen(SERVER_SOCKET_NAME) != true) {
-        qCritical() << "Can't create pipe" << SERVER_SOCKET_NAME << "for communicate with plugin";
-        Q_ASSERT(false);
-        return false;
+        qWarning() << "Can't create pipe" << SERVER_SOCKET_NAME << "for communicate with plugin";
+        qWarning() << "Error:" << m_server->errorString();
+        if (m_server->removeServer(SERVER_SOCKET_NAME) != true) {
+            qCritical() << "Can't remove old file socket";
+            qCritical() << "Error:" << m_server->errorString();
+            Q_ASSERT(false);
+            return false;
+        }
     }
 
     connect(m_server, SIGNAL(newConnection()), this, SLOT(storeNewConnection()));

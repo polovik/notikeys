@@ -2,13 +2,17 @@
 #include <QQmlContext>
 #include <QProcess>
 #include <QSettings>
-#include "skype.h"
+#include "Skype.h"
 #include "device/Settings.h"
+#ifdef _WIN32
 #include <windows.h>
 #include <winuser.h>
+#endif
 
 static int m_messages;
+#ifdef _WIN32
 static HWND m_hwndSkype;
+#endif
 
 Skype::Skype(QObject *parent) : QObject(parent)
 {
@@ -48,6 +52,7 @@ void Skype::stop()
     m_pollingTimer.stop();
 }
 
+#ifdef _WIN32
 BOOL CALLBACK detectSkype(HWND hwnd, LPARAM lParam)
 {
     Q_UNUSED(lParam);
@@ -83,11 +88,13 @@ BOOL CALLBACK detectSkype(HWND hwnd, LPARAM lParam)
     }
     return TRUE; // Continue enumeration
 }
+#endif
 
 void Skype::check()
 {
     qDebug() << "Skype::check";
     m_messages = -1;
+#ifdef _WIN32
     EnumWindows(&detectSkype, 0);
     if (m_messages == -1) {
         qDebug() << "Skype isn't run";
@@ -102,6 +109,7 @@ void Skype::check()
         emit eventsCount(m_messages);
         setLedMode(LED_RARE_BLINK);
     }
+#endif
 }
 
 #if 0

@@ -63,7 +63,11 @@ int main(int argc, char *argv[])
     QByteArray envVar = qgetenv("QTDIR");   //  this variable is only set when run application in QtCreator
     if (envVar.isEmpty()) {
         g_logFilePath = QDir::tempPath() + QDir::separator() + "log_notikeys.txt";
+#ifdef _WIN32
         logStream = _wfopen(g_logFilePath.toStdWString().c_str(), L"w");
+#else
+        logStream = fopen(g_logFilePath.toUtf8().data(), "w");
+#endif
     } else {
         logStream = stderr;
     }
@@ -88,6 +92,7 @@ int main(int argc, char *argv[])
     QObject::connect(&g_device, SIGNAL(buttonPressed(QString)),
                      &pluginsManager, SLOT(processButtonPressing(QString)));
 
+    g_device.init();
     Settings settings;
     viewer.rootContext()->setContextProperty("Settings", &settings);
 

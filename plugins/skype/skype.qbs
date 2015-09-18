@@ -18,6 +18,8 @@ Product {
 	type: "dynamiclibrary"
 	name: "skype"
     Depends { name: "cpp" }
+//    cpp.libraryPaths: ["c:\\Windows\\SysWOW64\\"]
+//    cpp.dynamicLibraries: ["user32"]
 	Depends { name: "Qt"; submodules: ["core", "network", "qml", "quick"]  }
     Depends { name: "libdevice" }
 

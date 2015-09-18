@@ -18,7 +18,7 @@ Product {
     type: "application"
     name: "gui"
     Depends { name: "cpp" }
-    Depends { name: "Qt"; submodules: ["core", "widgets", "network", "qml", "quick"] }
+    Depends { name: "Qt"; submodules: ["core", "widgets", "network", "qml", "quick", "serialport"] }
     Depends { name: "libdevice" }
     
     //  Sources

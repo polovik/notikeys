@@ -49,6 +49,7 @@ private:
     QState *m_stateREADY;
     QState *m_stateSTOP_DEVICE;
     QState *m_stateEXIT;
+    QSignalTransition *m_transitionDeviceNotResponded;
 
     StateLogger m_enteredStateName;
 };

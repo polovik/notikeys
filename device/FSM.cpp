@@ -40,10 +40,16 @@ FSM::FSM(QObject *parent) :
     m_stateFINDING_DEVICE->addTransition(m_device, SIGNAL(SIG_DEVICE_OPENED()), m_stateHAND_SHAKING);
     connect(m_stateFINDING_DEVICE, SIGNAL(exited()), &m_openDeviceTimer, SLOT(stop()));
 
+    m_transitionDeviceNotResponded = new QSignalTransition();
+    m_transitionDeviceNotResponded->setSenderObject(m_device);
+    m_transitionDeviceNotResponded->setSignal(SIGNAL(SIG_DEVICE_NOT_ANSWER()));
+    m_transitionDeviceNotResponded->setTargetState(m_stateFINDING_DEVICE);
+    connect(m_transitionDeviceNotResponded, SIGNAL(triggered()), m_device, SLOT(closeDevice()));
+
     //============= HAND_SHAKING ====================//
     connect(m_stateHAND_SHAKING, SIGNAL(entered()), m_device, SLOT(requestHandshake()));
     m_stateHAND_SHAKING->addTransition(m_device, SIGNAL(SIG_HANDSHAKED()), m_stateREADY);
-    m_stateHAND_SHAKING->addTransition(m_device, SIGNAL(SIG_DEVICE_CLOSED()), m_stateFINDING_DEVICE);
+    m_stateHAND_SHAKING->addTransition(m_transitionDeviceNotResponded);
 
     //============= READY ===========================//
     m_stateREADY->addTransition(m_device, SIGNAL(SIG_DEVICE_CLOSED()), m_stateFINDING_DEVICE);

@@ -24,6 +24,8 @@
 #define ENCRYPTION_OFF          0x00    //  (O)pen
 #define ENCRYPTION_ON           0xEE    //  (E)ncrypted
 #define CRC_LEN                 sizeof(uint16_t) // CRC is used for preserve fields: length, encrypted, type, reserved, data
+#define MAX_DATA_SIZE           0x64    //  Max length of "data" section = 100b
+#define MAX_PACKET_SIZE         (10 + MAX_DATA_SIZE + CRC_LEN)    //  Max total packet size (with preamble and crc) = 10b(meta)+100b(data)+2b(crc)=112bytes
 
 typedef enum {
     //  Device common procedures

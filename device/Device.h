@@ -2,6 +2,8 @@
 #define DEVICE_H
 
 #include <QObject>
+#include <QTimer>
+#include "protocol_pc_to_device.h"
 
 class UartPort;
 
@@ -18,32 +20,24 @@ public slots:
     void openDevice();
     void closeDevice();
     void requestHandshake();
-    void requestConnect();
-    void requestStartCalibration();
-    void requestStopCalibration();
-    void requestProgramming();
-    void requestStartTesting();
-    void requestStopTesting();
-    void requestFlashing();
     void requestReset();
 
 signals:
     void SIG_DEVICE_OPENED();
     void SIG_DEVICE_CLOSED();
     void SIG_HANDSHAKED();
-    void SIG_CONNECTED();
-    void SIG_CALIBRATION_INFO();
-    void SIG_CALIBRATION_STOPPED();
-    void SIG_SETTINGS_WRITTEN();
-    void SIG_TESTING_STOPPED();
-    void SIG_FLASHING_FINISHED();
+    void SIG_DEVICE_NOT_ANSWER();
 
 private slots:
     void parsePacket(const QByteArray &rawData);
 
 private:
-    QString m_readBuffer;
+    QByteArray assemblyPacket(packet_type_e command, const packet_data_u *data, unsigned int dataLength = 0);
+    void rewindIncomingBuffer();
+
+    QByteArray m_readBuffer;
     UartPort* m_uartPort;
+    QTimer m_deviceAnswerTimer;
 };
 
 #endif // DEVICE_H

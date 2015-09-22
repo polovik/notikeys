@@ -210,8 +210,8 @@ bool UartPort::configurePort()
     }
     QSerialPort::BaudRate baudRate = QSerialPort::UnknownBaud;
     QSerialPort::Parity parity = QSerialPort::UnknownParity;
-    if (m_deviceType == CONFIGURATION_SHUTTER) {
-        m_textProtocol = true;
+    if (m_deviceType == CONFIGURATION_KEYBOARD) {
+        m_textProtocol = false;
         m_uartTimeoutMS = 100;
         baudRate = QSerialPort::Baud9600;
         parity = QSerialPort::NoParity;

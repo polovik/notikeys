@@ -14,7 +14,7 @@ class QSerialPort;
 
 typedef enum {
     CONFIGURATION_UNKNOWN  = 0,
-    CONFIGURATION_SHUTTER  = 1
+    CONFIGURATION_KEYBOARD = 1
 } configuration_e;
 
 class UartPort : public QThread

@@ -34,6 +34,8 @@
 #include <usb_config.h>
 #include <adc.h>
 #include <xprintf.h>
+#include "../../device/protocol_pc_to_device.h"
+#include "../../device/crc16.h"
 
 /** VARIABLES ******************************************************/
 
@@ -134,39 +136,54 @@ void APP_DeviceCDCBasicDemoTasks()
     {
         uint8_t i;
         uint8_t numBytesRead;
+        uint8_t numBytesWrite = 0;
+        uint8_t dataLenght;
+        uint16_t crc;
+        char *e;
 
         numBytesRead = getsUSBUSART(readBuffer, sizeof(readBuffer));
-
-        /* For every byte that was read... */
-        for(i=0; i<numBytesRead; i++)
-        {
-            switch(readBuffer[i])
-            {
-                /* If we receive new line or line feed commands, just echo
-                 * them direct.
-                 */
-                case 0x0A:
-                case 0x0D:
-                    writeBuffer[i] = readBuffer[i];
-                    break;
-
-                /* If we receive something else, then echo it plus one
-                 * so that if we receive 'a', we echo 'b' so that the
-                 * user knows that it isn't the echo enabled on their
-                 * terminal program.
-                 */
-                default:
-                    writeBuffer[i] = readBuffer[i] + 1;
-                    break;
+        if (numBytesRead > 0) {
+            e = memchr(readBuffer, PREAMBLE, numBytesRead);
+            if (e == 0) {
+                memcpy(writeBuffer, readBuffer, numBytesRead);
+                numBytesWrite = numBytesRead;
+            } else {
+                i = (uint8_t)(e - readBuffer);
+                e = memchr(&readBuffer[i], DIRECTION_TO_DEVICE, numBytesRead - i);
+                if (e == 0) {
+                    memcpy(writeBuffer, readBuffer, numBytesRead);
+                    numBytesWrite = numBytesRead;
+                } else {
+                    i = (uint8_t)(e - readBuffer);
+                    dataLenght = 6 + 8;
+                    writeBuffer[0] = PREAMBLE;
+                    writeBuffer[1] = DIRECTION_FROM_DEVICE;
+                    writeBuffer[2] = dataLenght;
+                    writeBuffer[3] = 0x00;
+                    writeBuffer[4] = ENCRYPTION_OFF;
+                    writeBuffer[5] = GET_DEVICE_ID;
+                    writeBuffer[6] = 0xFF;
+                    writeBuffer[7] = 0xFF;
+                    writeBuffer[8] = 0xFF;
+                    writeBuffer[9] = 0xFF;
+                    writeBuffer[10] = 'K';
+                    writeBuffer[11] = 'e';
+                    writeBuffer[12] = 'y';
+                    writeBuffer[13] = 's';
+                    writeBuffer[14] = ' ';
+                    writeBuffer[15] = 0 + '0';
+                    writeBuffer[16] = 1 + '0';
+                    writeBuffer[17] = 1 + '0';
+                    crc = crc16_ccitt(&writeBuffer[2], (2 + dataLenght));
+                    writeBuffer[18] = (uint8_t)(crc & 0xFF);
+                    writeBuffer[19] = (uint8_t)((crc >> 8) & 0xFF);
+                    numBytesWrite = 20;
+                }
             }
-        }
 
-        if(numBytesRead > 0)
-        {
-            /* After processing all of the received data, we need to send out
-             * the "echo" data now.
-             */
-            putUSBUSART(writeBuffer,numBytesRead);
+            if (numBytesWrite > 0) {
+                putUSBUSART(writeBuffer, numBytesWrite);
+            }
         }
     }
 

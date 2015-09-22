@@ -12,6 +12,8 @@ Product {
         "UartPort.h",
         "FSM.cpp",
         "FSM.h",
+        "crc16.c",
+        "crc16.h",
         "protocol_pc_to_device.h",
     ]
     Depends { name: "Qt"; submodules: ["core", "serialport"]  }

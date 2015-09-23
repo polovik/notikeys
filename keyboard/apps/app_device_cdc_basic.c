@@ -33,15 +33,12 @@
 #include <app_device_cdc_basic.h>
 #include <usb_config.h>
 #include <adc.h>
-#include <xprintf.h>
 #include "../../device/protocol_pc_to_device.h"
 #include "../../device/crc16.h"
 
 /** VARIABLES ******************************************************/
 
-static bool buttonPressed;
-static char buttonMessage[] = "Button pressed.\r\n";
-static char messageADC[30];
+static button_state_s buttons_state[3];
 static uint8_t readBuffer[CDC_DATA_OUT_EP_SIZE];
 static uint8_t writeBuffer[CDC_DATA_IN_EP_SIZE];
 
@@ -67,7 +64,53 @@ void APP_DeviceCDCBasicDemoInitialize()
     line_coding.bParityType = 0;
     line_coding.dwDTERate = 9600;
 
-    buttonPressed = false;
+    memset(buttons_state, 0x00, 3 * sizeof(button_state_s));
+    buttons_state[0].pos = 0;
+    buttons_state[0].state = BUTTON_UNMOUNTED | BUTTON_RELEASED;
+    buttons_state[1].pos = 1;
+    buttons_state[1].state = BUTTON_UNMOUNTED | BUTTON_RELEASED;
+    buttons_state[2].pos = 2;
+    buttons_state[2].state = BUTTON_UNMOUNTED | BUTTON_RELEASED;
+}
+
+void assemblyPacket(packet_type_e command, const packet_data_u *data, uint8_t packet[MAX_PACKET_SIZE], uint8_t *packetSize)
+{
+    //  Fill header
+    packet_header *header = (packet_header *)packet;
+    memset(header, 0x00, HEADER_LENGTH);
+
+    header->preamble = PREAMBLE;
+    header->direction = DIRECTION_FROM_DEVICE;
+    header->encrypted = ENCRYPTION_OFF;
+    header->type = command;
+    header->reserved = 0xFFFFFFFF;
+
+    //  Copy data in packet
+    uint8_t *dataField = &packet[10];
+    unsigned int dataFieldSize = 0;
+
+    switch (command) {
+    case GET_DEVICE_ID:
+        dataFieldSize = 8;
+        memcpy(dataField, data->device_id, dataFieldSize);
+        break;
+    case GET_BUTTONS_STATE:
+        dataFieldSize = 3 * sizeof(button_state_s);
+        memcpy(dataField, data->buttons_state, dataFieldSize);
+        break;
+    default:
+        *packetSize = 0;
+        return;
+    }
+
+    //  Calculate packet size
+    header->length = 6 + dataFieldSize;
+    *packetSize = 4 + header->length + CRC_LEN;
+    
+    //  Calculate CRC over: length, encrypted, type, reserved, data
+    uint16_t crc;
+    crc = crc16_ccitt(&packet[2], (2 + header->length));
+    memcpy(packet + HEADER_LENGTH + dataFieldSize, &crc, CRC_LEN);
 }
 
 /*********************************************************************
@@ -86,47 +129,50 @@ void APP_DeviceCDCBasicDemoInitialize()
 ********************************************************************/
 void APP_DeviceCDCBasicDemoTasks()
 {
-    bool button1pressed = BUTTON_IsPressed(BUTTON_S1);
-    bool button2pressed = BUTTON_IsPressed(BUTTON_S2);
-    bool button3pressed = BUTTON_IsPressed(BUTTON_S3);
-    /* If the user has pressed the button associated with this demo, then we
-     * are going to send a "Button Pressed" message to the terminal.
-     */
-    if (button1pressed || button2pressed || button3pressed)
-    {
-        /* Make sure that we only send the message once per button press and
-         * not continuously as the button is held.
+    uint8_t numBytesWrite = 0;
+    uint8_t packet[MAX_PACKET_SIZE];
+    uint8_t packetSize;
+    packet_data_u data;
+
+    bool button1IsPressed = BUTTON_IsPressed(BUTTON_S1);
+    bool button2IsPressed = BUTTON_IsPressed(BUTTON_S2);
+    bool button3IsPressed = BUTTON_IsPressed(BUTTON_S3);
+    
+    bool button1WasPressed = (buttons_state[0].state & BUTTON_PRESSED) ? true : false;
+    bool button2WasPressed = (buttons_state[1].state & BUTTON_PRESSED) ? true : false;
+    bool button3WasPressed = (buttons_state[2].state & BUTTON_PRESSED) ? true : false;
+
+    if ((button1IsPressed != button1WasPressed) || (button2IsPressed != button2WasPressed) || (button3IsPressed != button3WasPressed)) {
+        /* Make sure that the CDC driver is ready for a transmission.
          */
-        if(buttonPressed == false)
-        {
-            /* Make sure that the CDC driver is ready for a transmission.
-             */
-            if(mUSBUSARTIsTxTrfReady() == true)
-            {
-                if (button1pressed) {
-                    uint16_t value = ADC_Read10bit(ADC_CHANNEL_1);
-                    uint32_t percent = ((uint32_t)100 * value) / 0x03FF;
-                    xsprintf(messageADC, "Btn1=%D-%D\r\n", value, percent);
-                } else if (button2pressed) {
-                    uint16_t value = ADC_Read10bit(ADC_CHANNEL_2);
-                    uint32_t percent = ((uint32_t)100 * value) / 0x03FF;
-                    xsprintf(messageADC, "Btn2=%D-%D\r\n", value, percent);
-                } else {
-                    uint16_t value = ADC_Read10bit(ADC_CHANNEL_3);
-                    uint32_t percent = ((uint32_t)100 * value) / 0x03FF;
-                    xsprintf(messageADC, "Btn3=%D-%D\r\n", value, percent);
-                }
-                putsUSBUSART(messageADC);
-                buttonPressed = true;
+        if (mUSBUSARTIsTxTrfReady() == true) {
+            uint16_t value;
+            uint32_t percent;
+            value = ADC_Read10bit(ADC_CHANNEL_1);
+            percent = ((uint32_t)100 * value) / 0x03FF;
+            buttons_state[0].state = button1IsPressed ? BUTTON_PRESSED : BUTTON_RELEASED;
+            buttons_state[0].uid = percent;
+
+            value = ADC_Read10bit(ADC_CHANNEL_2);
+            percent = ((uint32_t)100 * value) / 0x03FF;
+            buttons_state[1].state = button2IsPressed ? BUTTON_PRESSED : BUTTON_RELEASED;
+            buttons_state[1].uid = percent;
+
+            value = ADC_Read10bit(ADC_CHANNEL_3);
+            percent = ((uint32_t)100 * value) / 0x03FF;
+            buttons_state[2].state = button3IsPressed ? BUTTON_PRESSED : BUTTON_RELEASED;
+            buttons_state[2].uid = percent;
+
+            memset(&data, 0x00, sizeof(packet_data_u));
+            memcpy(data.buttons_state, buttons_state, 3 * sizeof(button_state_s));
+            assemblyPacket(GET_BUTTONS_STATE, &data, packet, &packetSize);
+            memcpy(writeBuffer, packet, packetSize);
+            numBytesWrite = packetSize;
+            
+            if (numBytesWrite > 0) {
+                putUSBUSART(writeBuffer, numBytesWrite);
             }
         }
-    }
-    else
-    {
-        /* If the button is released, we can then allow a new message to be
-         * sent the next time the button is pressed.
-         */
-        buttonPressed = false;
     }
 
     /* Check to see if there is a transmission in progress, if there isn't, then
@@ -136,9 +182,8 @@ void APP_DeviceCDCBasicDemoTasks()
     {
         uint8_t i;
         uint8_t numBytesRead;
-        uint8_t numBytesWrite = 0;
-        uint8_t dataLenght;
-        uint16_t crc;
+        char deviceID[] = "Keys 011";
+
         char *e;
 
         numBytesRead = getsUSBUSART(readBuffer, sizeof(readBuffer));
@@ -155,29 +200,12 @@ void APP_DeviceCDCBasicDemoTasks()
                     numBytesWrite = numBytesRead;
                 } else {
                     i = (uint8_t)(e - readBuffer);
-                    dataLenght = 6 + 8;
-                    writeBuffer[0] = PREAMBLE;
-                    writeBuffer[1] = DIRECTION_FROM_DEVICE;
-                    writeBuffer[2] = dataLenght;
-                    writeBuffer[3] = 0x00;
-                    writeBuffer[4] = ENCRYPTION_OFF;
-                    writeBuffer[5] = GET_DEVICE_ID;
-                    writeBuffer[6] = 0xFF;
-                    writeBuffer[7] = 0xFF;
-                    writeBuffer[8] = 0xFF;
-                    writeBuffer[9] = 0xFF;
-                    writeBuffer[10] = 'K';
-                    writeBuffer[11] = 'e';
-                    writeBuffer[12] = 'y';
-                    writeBuffer[13] = 's';
-                    writeBuffer[14] = ' ';
-                    writeBuffer[15] = 0 + '0';
-                    writeBuffer[16] = 1 + '0';
-                    writeBuffer[17] = 1 + '0';
-                    crc = crc16_ccitt(&writeBuffer[2], (2 + dataLenght));
-                    writeBuffer[18] = (uint8_t)(crc & 0xFF);
-                    writeBuffer[19] = (uint8_t)((crc >> 8) & 0xFF);
-                    numBytesWrite = 20;
+                    
+                    memset(&data, 0x00, sizeof(packet_data_u));
+                    memcpy(data.device_id, deviceID, 8);
+                    assemblyPacket(GET_DEVICE_ID, &data, packet, &packetSize);
+                    memcpy(writeBuffer, packet, packetSize);
+                    numBytesWrite = packetSize;
                 }
             }
 

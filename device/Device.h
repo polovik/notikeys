@@ -29,11 +29,12 @@ signals:
     void SIG_DEVICE_NOT_ANSWER();
 
 private slots:
-    void parsePacket(const QByteArray &rawData);
+    void parseData(const QByteArray &rawData);
 
 private:
     QByteArray assemblyPacket(packet_type_e command, const packet_data_u *data, unsigned int dataLength = 0);
     void rewindIncomingBuffer();
+    bool parsePacket();
 
     QByteArray m_readBuffer;
     UartPort* m_uartPort;

@@ -53,6 +53,7 @@ FSM::FSM(QObject *parent) :
 
     //============= READY ===========================//
     m_stateREADY->addTransition(m_device, SIGNAL(SIG_DEVICE_CLOSED()), m_stateFINDING_DEVICE);
+    m_stateREADY->addTransition(m_transitionDeviceNotResponded);
 
     //============= STOP_DEVICE =====================//
     m_quitApplicationTimer.setInterval(1000);

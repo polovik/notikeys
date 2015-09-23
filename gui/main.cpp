@@ -12,7 +12,7 @@
 #include "../device/Settings.h"
 #include "../device/FSM.h"
 
-bool g_verboseOutput = true;
+bool g_verboseOutput = false;
 static QTextCodec *logCodec = NULL;
 static FILE *logStream = NULL;
 QString g_logFilePath = "";

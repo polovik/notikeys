@@ -7,9 +7,6 @@
       <logicalFolder name="3rdparty_libs"
                      displayName="3rdparty_libs"
                      projectFiles="true">
-        <logicalFolder name="xprintf" displayName="xprintf" projectFiles="true">
-          <itemPath>3rdparty_libs/xprintf/xprintf.h</itemPath>
-        </logicalFolder>
       </logicalFolder>
       <logicalFolder name="apps" displayName="apps" projectFiles="true">
         <logicalFolder name="system_config"
@@ -53,9 +50,6 @@
       <logicalFolder name="3rdparty_libs"
                      displayName="3rdparty_libs"
                      projectFiles="true">
-        <logicalFolder name="xprintf" displayName="xprintf" projectFiles="true">
-          <itemPath>3rdparty_libs/xprintf/xprintf.c</itemPath>
-        </logicalFolder>
       </logicalFolder>
       <logicalFolder name="apps" displayName="apps" projectFiles="true">
         <logicalFolder name="system_config"

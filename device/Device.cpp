@@ -17,7 +17,7 @@ Device::Device(QObject *parent) :
     m_uartPort = new UartPort(CONFIGURATION_KEYBOARD);
     m_uartPort->start();
 
-    connect(m_uartPort, SIGNAL(dataReceived(const QByteArray &)), this, SLOT(parsePacket(const QByteArray &)));
+    connect(m_uartPort, SIGNAL(dataReceived(const QByteArray &)), this, SLOT(parseData(const QByteArray &)));
     connect(m_uartPort, SIGNAL(portOpened()), SIGNAL(SIG_DEVICE_OPENED()));
     connect(m_uartPort, SIGNAL(portClosed()), SIGNAL(SIG_DEVICE_CLOSED()));
     connect(&m_deviceAnswerTimer, SIGNAL(timeout()), SIGNAL(SIG_DEVICE_NOT_ANSWER()));
@@ -123,6 +123,20 @@ QByteArray Device::assemblyPacket(packet_type_e command, const packet_data_u *da
     return assembliedPacket;
 }
 
+void Device::parseData(const QByteArray &rawData)
+{
+    //  Add new data in common buffer
+    m_readBuffer.append(rawData);
+
+    //  Parse packets while incoming buffer isn't empty
+    while (parsePacket()) {
+        rewindIncomingBuffer();
+        if ((unsigned int)m_readBuffer.size() < (HEADER_LENGTH + CRC_LEN)) {
+            break;
+        }
+    }
+}
+
 void Device::rewindIncomingBuffer()
 {
     //  Possible content of m_readBuffer buffer:
@@ -140,51 +154,42 @@ void Device::rewindIncomingBuffer()
         m_readBuffer.clear();
     else
         m_readBuffer.remove(0, startPos);
-
-    if ((unsigned int)m_readBuffer.size() > (HEADER_LENGTH + CRC_LEN)) {
-        QByteArray stub;
-        parsePacket(stub);
-    }
 }
 
-void Device::parsePacket(const QByteArray& raw_data)
+bool Device::parsePacket()
 {
     extern bool g_verboseOutput;
 
-    //  Add new data in common buffer
-    m_readBuffer.append(raw_data);
-    qDebug("parse: %d, 0x%s", m_readBuffer.size(), qPrintable(m_readBuffer.toHex().toUpper()));
+    if (g_verboseOutput) {
+        qDebug("parse: %d, 0x%s", m_readBuffer.size(), qPrintable(m_readBuffer.toHex().toUpper()));
+    }
 
     //  Verify prefix of packet
     if (m_readBuffer.size() < 4) {
         qDebug() << "Packet hasn't been got yet. Expect major 4 bytes. Got:" << m_readBuffer.size() << "bytes";
-        return;
+        return false;
     }
     packet_header *header = (packet_header *)m_readBuffer.data();
     if ((header->preamble != PREAMBLE) || (header->direction != DIRECTION_FROM_DEVICE)) {
         qCritical("Incorrect prefix of packet: 0x%X 0x%X", header->preamble, header->direction);
-        rewindIncomingBuffer();
-//        Q_ASSERT(false);
-        return;
+        return true;
     }
 
     //  Wait until get full packet
     unsigned int dataSize = header->length;
     if (dataSize > MAX_DATA_SIZE) {
         qCritical("Incorrect size of data section: %dbytes. Allowed: %dbytes", dataSize, MAX_DATA_SIZE);
-        rewindIncomingBuffer();
-        return;
+        return true;
     }
     if ((unsigned int)m_readBuffer.size() < (4 + dataSize + CRC_LEN)) {
         if (g_verboseOutput)
             qDebug() << "Packet hasn't been got yet. Expect:" << (4 + dataSize + CRC_LEN) << "bytes, got:" << m_readBuffer.size() << "bytes";
-        return;
+        return false;
     }
     if (header->encrypted != ENCRYPTION_OFF) {
         qCritical() << "Encrypted packets isn't supported yet";
-        rewindIncomingBuffer();
         Q_ASSERT(false);
-        return;
+        return true;
     }
 
     //  Verify integrity of data field
@@ -193,9 +198,8 @@ void Device::parsePacket(const QByteArray& raw_data)
     memcpy(&packetCRC, m_readBuffer.data() + 4 + dataSize, CRC_LEN);
     if (calculatedCRC != packetCRC) {
         qCritical("Incorrect CRC = 0x%04X, should be 0x%04X", calculatedCRC, packetCRC);
-        rewindIncomingBuffer();
         Q_ASSERT(false);
-        return;
+        return true;
     }
 
     //  Extract meaningful data
@@ -222,13 +226,20 @@ void Device::parsePacket(const QByteArray& raw_data)
                errors, rtc);
         break;
     }
+    case GET_BUTTONS_STATE: {
+        qDebug("Buttons state: %d(%d) - %X, %d(%d) - %X, %d(%d) - %X",
+               data->buttons_state[0].pos, data->buttons_state[0].uid, data->buttons_state[0].state,
+               data->buttons_state[1].pos, data->buttons_state[1].uid, data->buttons_state[1].state,
+               data->buttons_state[2].pos, data->buttons_state[2].uid, data->buttons_state[2].state);
+        break;
+    }
     default:
         qWarning("Unknown command id %d", command);
         Q_ASSERT(false);
         break;
     }
 //    qDebug("rest: %d, 0x%s", dataSize, qPrintable(m_readBuffer.toHex().toUpper()));
-    rewindIncomingBuffer();
+    return true;
 }
 
 void Device::requestHandshake()

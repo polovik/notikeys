@@ -35,6 +35,7 @@ signals:
 
 private slots:
     void displayStateName(QString name);
+    void indicateDeviceDetection();
 
 private:
     Device *m_device;

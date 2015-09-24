@@ -87,9 +87,9 @@ QByteArray Device::assemblyPacket(packet_type_e command, const packet_data_u *da
     case GET_BUTTONS_STATE:
         break;
     case SET_LEDS_STATE:
-        dataFieldSize = 3 * sizeof(button_state_s);
+        dataFieldSize = sizeof(led_state_e);
         dataField = (char *)malloc(dataFieldSize);
-        memcpy(dataField, &data->buttons_state, dataFieldSize);
+        memcpy(dataField, &data->led_state, dataFieldSize);
         break;
     default:
         qCritical() << "Unknown command:" << command;
@@ -246,6 +246,16 @@ void Device::requestHandshake()
 {
     QByteArray packet = assemblyPacket(GET_DEVICE_ID, NULL);
     m_deviceAnswerTimer.start();
+    m_uartPort->sendPacket(packet);
+}
+
+void Device::requestLedCotrol(quint8 pos, quint16 state)
+{
+    packet_data_u data;
+    memset(&data, 0x00, sizeof(packet_data_u));
+    data.led_state.pos = pos;
+    data.led_state.state = state;
+    QByteArray packet = assemblyPacket(SET_LEDS_STATE, &data);
     m_uartPort->sendPacket(packet);
 }
 

@@ -20,6 +20,7 @@ public slots:
     void openDevice();
     void closeDevice();
     void requestHandshake();
+    void requestLedCotrol(quint8 pos, quint16 state);
     void requestReset();
 
 signals:

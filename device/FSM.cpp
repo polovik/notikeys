@@ -27,6 +27,9 @@ FSM::FSM(QObject *parent) :
 
     connect(&m_enteredStateName, SIGNAL(textChanged(QString)), this, SLOT(displayStateName(QString)));
 
+    // TODO move this connection to QML??
+    connect(this, SIGNAL(deviceAppeared()), this, SLOT(indicateDeviceDetection()));
+
     /*  Initialize/Finalize stage   */
     //============= STARTING ========================//
 //    connect(m_stateSTARTING, SIGNAL(entered()), m_guiMainWindow, SLOT(show()));
@@ -52,8 +55,10 @@ FSM::FSM(QObject *parent) :
     m_stateHAND_SHAKING->addTransition(m_transitionDeviceNotResponded);
 
     //============= READY ===========================//
+    connect(m_stateREADY, SIGNAL(entered()), SIGNAL(deviceAppeared()));
     m_stateREADY->addTransition(m_device, SIGNAL(SIG_DEVICE_CLOSED()), m_stateFINDING_DEVICE);
     m_stateREADY->addTransition(m_transitionDeviceNotResponded);
+    connect(m_stateREADY, SIGNAL(exited()), SIGNAL(deviceDisappeared()));
 
     //============= STOP_DEVICE =====================//
     m_quitApplicationTimer.setInterval(1000);
@@ -80,5 +85,11 @@ FSM::FSM(QObject *parent) :
 void FSM::displayStateName(QString name)
 {
     qDebug() << "Enter in state:" << name;
+}
+
+void FSM::indicateDeviceDetection()
+{
+    //  Make common enum for protocol and Plugins
+    m_device->requestLedCotrol(0, 0x0101);
 }
 

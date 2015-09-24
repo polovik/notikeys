@@ -113,6 +113,61 @@ void assemblyPacket(packet_type_e command, const packet_data_u *data, uint8_t pa
     memcpy(packet + HEADER_LENGTH + dataFieldSize, &crc, CRC_LEN);
 }
 
+//  Return true if another packet may present in Incoming buffer
+bool parsePacket(const uint8_t *rawData, uint8_t rawDataSize, packet_type_e *type, uint8_t payload[MAX_DATA_SIZE], uint8_t *payloadSize)
+{
+    *type = UNKNOWN_PACKET;
+    *payloadSize = 0;
+    
+    //  Verify prefix of packet
+    if (rawDataSize < 4) {
+        return false;
+    }
+    packet_header *header = (packet_header *)rawData;
+    if ((header->preamble != PREAMBLE) || (header->direction != DIRECTION_TO_DEVICE)) {
+        return true;
+    }
+
+    //  Wait until get full packet
+    uint16_t dataSize = header->length;
+    if (dataSize > MAX_DATA_SIZE) {
+        return true;
+    }
+    if (rawDataSize < (4 + dataSize + CRC_LEN)) {
+        return false;
+    }
+    if (header->encrypted != ENCRYPTION_OFF) {
+        return true;
+    }
+
+    //  Verify integrity of data field
+    uint16_t calculatedCRC;
+    calculatedCRC = crc16_ccitt((uint8_t *)&rawData[2], (dataSize + 2));
+    uint16_t packetCRC;
+    memcpy(&packetCRC, rawData + 4 + dataSize, CRC_LEN);
+    if (calculatedCRC != packetCRC) {
+        return true;
+    }
+
+    //  Extract meaningful data
+    packet_type_e command = (packet_type_e)header->type;
+    packet_data_u *data = (packet_data_u *)(rawData + HEADER_LENGTH);
+
+    switch (command) {
+    case GET_DEVICE_ID: {
+        *type = GET_DEVICE_ID;
+        break;
+    }
+    case SET_LEDS_STATE: {
+        *type = SET_LEDS_STATE;
+        *payloadSize = sizeof(led_state_s);
+        memcpy(payload, &data->led_state, *payloadSize);
+        break;
+    }
+    }
+    return true;
+}
+
 /*********************************************************************
 * Function: void APP_DeviceCDCBasicDemoTasks(void);
 *
@@ -183,8 +238,10 @@ void APP_DeviceCDCBasicDemoTasks()
         uint8_t i;
         uint8_t numBytesRead;
         char deviceID[] = "Keys 011";
-
         char *e;
+        packet_type_e type;
+        uint8_t payload[MAX_DATA_SIZE];
+        uint8_t payloadSize;
 
         numBytesRead = getsUSBUSART(readBuffer, sizeof(readBuffer));
         if (numBytesRead > 0) {
@@ -194,18 +251,33 @@ void APP_DeviceCDCBasicDemoTasks()
                 numBytesWrite = numBytesRead;
             } else {
                 i = (uint8_t)(e - readBuffer);
-                e = memchr(&readBuffer[i], DIRECTION_TO_DEVICE, numBytesRead - i);
-                if (e == 0) {
-                    memcpy(writeBuffer, readBuffer, numBytesRead);
-                    numBytesWrite = numBytesRead;
-                } else {
-                    i = (uint8_t)(e - readBuffer);
-                    
+                parsePacket(&readBuffer[i], numBytesRead - i, &type, payload, &payloadSize);
+                if (type == GET_DEVICE_ID) {
                     memset(&data, 0x00, sizeof(packet_data_u));
                     memcpy(data.device_id, deviceID, 8);
                     assemblyPacket(GET_DEVICE_ID, &data, packet, &packetSize);
                     memcpy(writeBuffer, packet, packetSize);
                     numBytesWrite = packetSize;
+                } else if (type == SET_LEDS_STATE) {
+                    led_state_s *led = (led_state_s *)payload;
+                    if (led->pos != 0) {
+                        memcpy(writeBuffer, readBuffer, numBytesRead);
+                        numBytesWrite = numBytesRead;
+                    } else {
+                        if (led->state == LED_TURN_ON) {
+                            LED_On(LED_D2);
+                        } else {
+                            LED_Off(LED_D2);
+                        }
+                        memset(&data, 0x00, sizeof(packet_data_u));
+                        memcpy(data.device_id, deviceID, 3);
+                        assemblyPacket(GET_DEVICE_ID, &data, packet, &packetSize);
+                        memcpy(writeBuffer, packet, packetSize);
+                        numBytesWrite = packetSize;
+                    }
+                } else {
+                    memcpy(writeBuffer, readBuffer, numBytesRead);
+                    numBytesWrite = numBytesRead;
                 }
             }
 

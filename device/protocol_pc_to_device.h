@@ -28,6 +28,8 @@
 #define MAX_PACKET_SIZE         (10 + MAX_DATA_SIZE + CRC_LEN)    //  Max total packet size (with preamble and crc) = 10b(meta)+100b(data)+2b(crc)=112bytes
 
 typedef enum {
+    UNKNOWN_PACKET              = 0x00,
+
     //  Device common procedures
     GET_DEVICE_ID               = 0x01,
     GET_STATUS                  = 0x02,
@@ -67,18 +69,20 @@ typedef struct {
 } PACKED button_state_s;
 
 enum led_state_e {
-    LED_TURN_OFF                = 0x0000,
-    LED_TURN_ON                 = 0x0001,
+    LED_UNDEFINED               = 0x0000,
+// Permanent state
+    LED_TURN_OFF                = 0x0100,
+    LED_TURN_ON                 = 0x0101,
 // Led's state pattern basing on "urgency"
-    LED_URGENT                  = 0x0100, // when expected immediate user reaction
-    LED_CALM                    = 0x0180, // remind about daily routines
+    LED_URGENT                  = 0x0200, // when expected immediate user reaction
+    LED_CALM                    = 0x0280, // remind about daily routines
 // Led's state pattern basing on "duration"
-    LED_START_OPERATION         = 0x0200, // operation is started
-    LED_IN_PROGRESS             = 0x0208, // inform user about a long operation execution progress
-    LED_STOP_OPERATION          = 0x0280, // operation is finished
+    LED_START_OPERATION         = 0x0400, // operation is started
+    LED_IN_PROGRESS             = 0x0408, // inform user about a long operation execution progress
+    LED_STOP_OPERATION          = 0x0480, // operation is finished
 // Led's state pattern basing on "finish status"
-    LED_SUCCESS                 = 0x0400,
-    LED_FAILURE                 = 0x0480,
+    LED_SUCCESS                 = 0x0800,
+    LED_FAILURE                 = 0x0880,
 };
 
 typedef struct {
@@ -96,7 +100,7 @@ typedef union {
     button_state_s      buttons_state[3];   // GET_BUTTONS_STATE
 
     //  LEDs control
-    led_state_s         leds_state[3];      // SET_LEDS_STATE
+    led_state_s         led_state;          // SET_LEDS_STATE
 
     //  Settings
     // SET_SETTINGS

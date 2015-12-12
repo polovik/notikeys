@@ -1,7 +1,7 @@
 #include <QDebug>
 #include <QByteArray>
 #include <QString>
-#ifndef _WIN32
+#ifndef Q_OS_WIN
     #include <QSerialPort>
 #endif
 #include "UartPort.h"
@@ -12,7 +12,7 @@ UartPort::UartPort(configuration_e deviceType, QObject *parent)
     m_needClosePort = false;
     m_deviceType = deviceType;
 
-#ifdef _WIN32
+#ifdef Q_OS_WIN
     m_serialPort = INVALID_HANDLE_VALUE;
 #else
     m_serialPort = NULL;
@@ -55,7 +55,7 @@ void UartPort::sendPacket(const QByteArray& packet)
     m_transmitBuffer.append(packet);
 }
 
-#ifdef _WIN32
+#ifdef Q_OS_WIN
 bool UartPort::openPort()
 {
     qDebug() << "Try open port" << m_portName;
@@ -292,7 +292,7 @@ void UartPort::run()
     bool needSendData = false;
     m_needClosePort = false;
 
-#ifndef _WIN32
+#ifndef Q_OS_WIN
     m_serialPort = new QSerialPort("");
 #endif
 
@@ -321,7 +321,7 @@ void UartPort::run()
 
         //  Open serial port
         portMutex.lock();
-#ifdef _WIN32
+#ifdef Q_OS_WIN
         if (m_serialPort == INVALID_HANDLE_VALUE) {
 #else
         if (m_serialPort->portName() != m_portName) {

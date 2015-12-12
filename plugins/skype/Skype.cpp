@@ -2,15 +2,17 @@
 #include <QQmlContext>
 #include <QProcess>
 #include <QSettings>
+#include <QRegularExpression>
+#include <QRegularExpressionMatch>
 #include "Skype.h"
 #include "device/Settings.h"
-#ifdef _WIN32
+#ifdef Q_OS_WIN
 #include <windows.h>
 #include <winuser.h>
 #endif
 
 static int m_messages;
-#ifdef _WIN32
+#ifdef Q_OS_WIN
 static HWND m_hwndSkype;
 #endif
 
@@ -52,7 +54,28 @@ void Skype::stop()
     m_pollingTimer.stop();
 }
 
-#ifdef _WIN32
+int getMessagesCount(QString windowName)
+{
+    // no new messages: yyyyyyy - Skype™
+    //  a new messages: [1]yyyyyyy - Skype™
+    int numStart = windowName.indexOf("[");
+    int numEnd = windowName.indexOf("]");
+    int length = numEnd - numStart - 1;
+    if ((numStart >= 0) && (numEnd > 0) && (length > 0)) {
+        QString events = windowName.mid(numStart + 1, length);
+        bool ok = false;
+        int count = events.toInt(&ok);
+        if (!ok) {
+            qCritical() << "Incorrect format of Skype window caption:" << windowName;
+            return -1;
+        } else {
+            return count;
+        }
+    }
+    return 0;
+}
+
+#ifdef Q_OS_WIN
 BOOL CALLBACK detectSkype(HWND hwnd, LPARAM lParam)
 {
     Q_UNUSED(lParam);
@@ -88,16 +111,73 @@ BOOL CALLBACK detectSkype(HWND hwnd, LPARAM lParam)
     }
     return TRUE; // Continue enumeration
 }
+#elif defined(Q_OS_LINUX)
+QString detectSkypeWindowName()
+{
+    QString windowName = "";
+//    # xwininfo -root -tree| grep "[Ss]kype"
+//         0x140022c "[1]XXXXXXXXX - Skype™": ("skype" "Skype")  476x856+0+0  +0+0
+//         0x1400002 "skype": ("skype" "Skype")  960x432+0+0  +0+0
+//               0x1400017 "skype": ("skype" "Skype")  16x16+1404+2  +1404+880
+//            0x1400036 "yyyyyyy - Skype™": ("skype" "Skype")  1436x856+2+0  +2+20
+//            0x2e0000a "Skype.cpp [master] - notikeys - Qt Creator": ("qtcreator" "QtCreator")  1436x856+2+0  +2+20
+
+    QProcess process;
+    process.start("xwininfo", QStringList() << "-root" << "-tree");
+    if (!process.waitForFinished(1000)) {
+        qCritical() << "Couldn't enumerate X windows in time";
+        return windowName;
+    }
+    QByteArray result = process.readAll();
+    QList<QByteArray> lines = result.split('\n');
+    QList<QString> windows;
+    foreach (QByteArray line, lines) {
+        if (line.contains("(\"skype\" \"Skype\")")) {
+            windows.append(line.trimmed());
+        }
+    }
+    foreach (QString window, windows) {
+        int pos = window.indexOf(" ");
+//        QString id = window.left(pos);
+        int endPos = window.indexOf("\"", pos + 2);
+        int len = endPos - (pos + 2);
+        QString name = window.mid(pos + 2, len);
+        if (name.isEmpty())
+            continue;
+        if (!name.contains("- Skype™"))
+            continue;
+        if (getMessagesCount(name) > 0) {
+            return name;
+        }
+        if (!windowName.isEmpty()) {
+//            qWarning() << "Several X windows are conditates to main Skype window:" << windowName << "and" << name;
+        }
+        windowName = name;
+    }
+    return windowName;
+}
 #endif
 
 void Skype::check()
 {
     qDebug() << "Skype::check";
+    QString windowName = "";
+#ifdef Q_OS_WIN
     m_messages = -1;
-#ifdef _WIN32
     EnumWindows(&detectSkype, 0);
-    if (m_messages == -1) {
+#elif defined(Q_OS_LINUX)
+    windowName = detectSkypeWindowName();
+#endif
+    qDebug() << "windowName:" << windowName;
+    if (windowName.isEmpty()) {
         qDebug() << "Skype isn't run";
+        emit skypeIsAbsent();
+        setLedMode(LED_FREQUENT_BLINK);
+        return;
+    }
+    m_messages = getMessagesCount(windowName);
+    if (m_messages == -1) {
+        qWarning() << "Couldn't detect number of a new messages in Skype";
         emit skypeIsAbsent();
         setLedMode(LED_FREQUENT_BLINK);
     } else if (m_messages == 0) {
@@ -109,7 +189,6 @@ void Skype::check()
         emit eventsCount(m_messages);
         setLedMode(LED_RARE_BLINK);
     }
-#endif
 }
 
 #if 0

@@ -67,6 +67,8 @@ bool PluginsManager::loadPlugins()
         pluginsDir.cdUp();
         pluginsDir.cdUp();
     }
+#else
+    dirExist = pluginsDir.cd("plugins");
 #endif
     if (!dirExist) {
         qCritical() << "Folder \"plugins\" is absent. Expect in" << pluginsDir.absolutePath();

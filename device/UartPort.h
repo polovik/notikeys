@@ -5,7 +5,7 @@
 #include <QThread>
 #include <QMutex>
 
-#ifdef _WIN32
+#ifdef Q_OS_WIN
 #include <Windows.h>
 #include <WinBase.h>
 #endif
@@ -48,7 +48,7 @@ private:
     int m_uartTimeoutMS;
     bool m_textProtocol;
 
-#ifdef _WIN32
+#ifdef Q_OS_WIN
     HANDLE m_serialPort;
 #else
     QSerialPort *m_serialPort;

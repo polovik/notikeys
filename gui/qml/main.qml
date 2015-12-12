@@ -340,6 +340,16 @@ Rectangle {
         }
     }
 
+    function handleDeviceConnected() {
+        console.log("Device is connected")
+        mainScreen.state = "ACTIVE"
+    }
+
+    function handleDeviceDisconnected() {
+        console.log("Device is disconnected")
+        mainScreen.state = "DISCONNECTED"
+    }
+
     Component.onCompleted: {
         screenPluginConfigure.makeInvisible()
         PluginsManager.loadPlugins();
@@ -348,5 +358,8 @@ Rectangle {
             mainScreen.language = "us_US"
         else
             mainScreen.language = lang
+        DeviceFSM.deviceAppeared.connect(handleDeviceConnected)
+        DeviceFSM.deviceDisappeared.connect(handleDeviceDisconnected)
+        DeviceFSM.start()
     }
 }

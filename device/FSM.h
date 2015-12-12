@@ -28,6 +28,7 @@ public:
     explicit FSM(QObject *parent = 0);
 
 public slots:
+    void start();
 
 signals:
     void deviceAppeared();

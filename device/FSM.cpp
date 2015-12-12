@@ -78,7 +78,11 @@ FSM::FSM(QObject *parent) :
     m_machine->addState(m_stateEXIT);
 
     m_machine->setInitialState(m_stateFINDING_DEVICE);
+}
 
+void FSM::start()
+{
+    qDebug() << "Start FSM";
     m_machine->start();
 }
 

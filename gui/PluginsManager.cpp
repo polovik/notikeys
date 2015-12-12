@@ -84,13 +84,13 @@ bool PluginsManager::loadPlugins()
             const QJsonObject& metaData = pluginLoader.metaData().value("MetaData").toObject();
             QString uid = metaData.value(NS_PLUGIN_INFO::fieldID).toString();
             QString title = metaData.value(NS_PLUGIN_INFO::fieldTitle).toString();
-            qDebug() << "Plugin info: Title:" << title
-                     << "Version:" << metaData.value(NS_PLUGIN_INFO::fieldVersion).toString()
-                     << "Description:" << metaData.value(NS_PLUGIN_INFO::fieldDescription).toString()
-                     << "Dependencies count:" << metaData.value(NS_PLUGIN_INFO::fieldDependencies).toArray().size()
-                     << "UID:" << uid;
             QObject *pluginInstance = pluginLoader.instance();
             if (pluginInstance) {
+                qDebug() << "Plugin info: Title:" << title
+                         << "Version:" << metaData.value(NS_PLUGIN_INFO::fieldVersion).toString()
+                         << "Description:" << metaData.value(NS_PLUGIN_INFO::fieldDescription).toString()
+                         << "Dependencies count:" << metaData.value(NS_PLUGIN_INFO::fieldDependencies).toArray().size()
+                         << "UID:" << uid;
                 PluginInterface *plugin = qobject_cast<PluginInterface *>(pluginInstance);
                 if (plugin) {
                     if (uid.isEmpty() || m_plugins.contains(uid)) {

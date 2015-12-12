@@ -84,6 +84,10 @@ int main(int argc, char *argv[])
     PluginsManager pluginsManager(viewer.rootContext());
     viewer.rootContext()->setContextProperty("PluginsManager", &pluginsManager);
 
+    FSM *deviceFSM = new FSM();
+    deviceFSM->setObjectName("DeviceFSM");
+    viewer.rootContext()->setContextProperty("DeviceFSM", deviceFSM);
+
     ExternalPluginServer pluginServer;
     pluginServer.startServer();
     QObject::connect(&pluginServer, SIGNAL(eventsGot(qint32, qint32)),
@@ -92,7 +96,6 @@ int main(int argc, char *argv[])
 //    QObject::connect(&g_device, SIGNAL(buttonPressed(QString)),
 //                     &pluginsManager, SLOT(processButtonPressing(QString)));
 
-//    g_device.init();
     Settings settings;
     viewer.rootContext()->setContextProperty("Settings", &settings);
 
@@ -101,8 +104,6 @@ int main(int argc, char *argv[])
 
     viewer.setMainQmlFile(QStringLiteral("qml/main.qml"));
     viewer.showExpanded();
-
-    FSM deviceFSM;
 
     return app.exec();
 }

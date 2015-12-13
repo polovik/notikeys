@@ -1,6 +1,7 @@
 import QtQuick 2.1
 import QtQuick.Controls 1.0
 import QtQuick.Controls.Styles 1.0
+import FSMPackage 1.0
 
 Rectangle {
     id: mainScreen
@@ -350,6 +351,27 @@ Rectangle {
         mainScreen.state = "DISCONNECTED"
     }
 
+    function handleButtonState(uid, state, pos) {
+        var st = ""
+        switch (state) {
+        case FSM.KEY_DISCONNECTED:
+            st = "disconnected"
+            break;
+        case FSM.KEY_CONNECTED:
+            st = "connected"
+            break;
+        case FSM.KEY_PRESSED:
+            st = "pressed"
+            break;
+        case FSM.KEY_RELEASED:
+            st = "released"
+            break;
+        default:
+            break;
+        }
+        console.log("Button " + uid + " changed state to '" + st + "' at pos " + pos)
+    }
+
     Component.onCompleted: {
         screenPluginConfigure.makeInvisible()
         PluginsManager.loadPlugins();
@@ -360,6 +382,7 @@ Rectangle {
             mainScreen.language = lang
         DeviceFSM.deviceAppeared.connect(handleDeviceConnected)
         DeviceFSM.deviceDisappeared.connect(handleDeviceDisconnected)
+        DeviceFSM.buttonStateChanged.connect(handleButtonState)
         DeviceFSM.start()
     }
 }

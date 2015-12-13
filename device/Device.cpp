@@ -231,6 +231,11 @@ bool Device::parsePacket()
                data->buttons_state[0].pos, data->buttons_state[0].uid, data->buttons_state[0].state,
                data->buttons_state[1].pos, data->buttons_state[1].uid, data->buttons_state[1].state,
                data->buttons_state[2].pos, data->buttons_state[2].uid, data->buttons_state[2].state);
+        QMap<int, QPair<int, int> > states;
+        states[data->buttons_state[0].pos] = qMakePair<int, int>(data->buttons_state[0].uid, data->buttons_state[0].state);
+        states[data->buttons_state[1].pos] = qMakePair<int, int>(data->buttons_state[1].uid, data->buttons_state[1].state);
+        states[data->buttons_state[2].pos] = qMakePair<int, int>(data->buttons_state[2].uid, data->buttons_state[2].state);
+        emit buttonsState(states);
         break;
     }
     default:

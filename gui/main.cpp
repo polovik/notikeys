@@ -84,6 +84,7 @@ int main(int argc, char *argv[])
     PluginsManager pluginsManager(viewer.rootContext());
     viewer.rootContext()->setContextProperty("PluginsManager", &pluginsManager);
 
+    qmlRegisterType<FSM>("FSMPackage", 1, 0, "FSM");
     FSM *deviceFSM = new FSM();
     deviceFSM->setObjectName("DeviceFSM");
     viewer.rootContext()->setContextProperty("DeviceFSM", deviceFSM);

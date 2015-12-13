@@ -9,6 +9,7 @@ FSM::FSM(QObject *parent) :
     QObject(parent)
 {
     m_device = new Device;
+    connect(m_device, SIGNAL(buttonsState(QMap<int,QPair<int,int> >)), this, SLOT(notifyButtonsState(QMap<int,QPair<int,int> >)));
 
     m_machine = new QStateMachine;
     m_stateSTARTING = new QState;
@@ -95,5 +96,48 @@ void FSM::indicateDeviceDetection()
 {
     //  Make common enum for protocol and Plugins
     m_device->requestLedCotrol(0, 0x0101);
+}
+
+void FSM::notifyButtonsState(QMap<int, QPair<int, int> > states)
+{
+    QMap<int, QPair<int, int> >::const_iterator i = states.constBegin();
+    while (i != states.constEnd()) {
+        int pos = i.key();
+        QPair<int, int> s = i.value();
+        int uid = s.first;
+        int state = s.second;
+        int prevUid = -1;
+        int prevState = KEY_UNKNOWN;
+        if (m_buttonsStates.contains(pos)) {
+            prevUid = m_buttonsStates[pos].first;
+            prevState = m_buttonsStates[pos].second;
+        }
+//        qDebug() << "Button state:" << pos << uid << state << prevUid << prevState;
+        if ((uid == prevUid) && (state == prevState)) {
+            ++i;
+            continue;
+        }
+        if (state != prevState) {
+            // Connect button
+            if (state == BUTTON_MOUNTED) {
+                emit buttonStateChanged(uid, KEY_CONNECTED, pos);
+            }
+            // Disconnect button
+            if (state == BUTTON_UNMOUNTED) {
+                emit buttonStateChanged(prevUid, KEY_DISCONNECTED, pos);
+            }
+            // Button has just pressed
+            if (state == BUTTON_PRESSED) {
+                emit buttonStateChanged(uid, KEY_PRESSED, pos);
+            }
+            // Button has just released
+            if (state == BUTTON_RELEASED) {
+                emit buttonStateChanged(uid, KEY_RELEASED, pos);
+            }
+        }
+        ++i;
+    }
+    m_buttonsStates.clear();
+    m_buttonsStates = states;
 }
 

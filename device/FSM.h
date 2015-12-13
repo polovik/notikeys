@@ -3,6 +3,8 @@
 
 #include <QObject>
 #include <QTimer>
+#include <QMap>
+#include <QPair>
 
 class QStateMachine;
 class QState;
@@ -27,16 +29,27 @@ class FSM : public QObject
 public:
     explicit FSM(QObject *parent = 0);
 
+    enum buttonState {
+        KEY_UNKNOWN      = 99,
+        KEY_DISCONNECTED = 11,
+        KEY_CONNECTED    = 22,
+        KEY_PRESSED      = 33,
+        KEY_RELEASED     = 44
+    };
+    Q_ENUMS(buttonState)
+
 public slots:
     void start();
 
 signals:
     void deviceAppeared();
     void deviceDisappeared();
+    void buttonStateChanged(int uid, buttonState state, int pos);
 
 private slots:
     void displayStateName(QString name);
     void indicateDeviceDetection();
+    void notifyButtonsState(QMap<int, QPair<int, int> > states);
 
 private:
     Device *m_device;
@@ -54,6 +67,7 @@ private:
     QSignalTransition *m_transitionDeviceNotResponded;
 
     StateLogger m_enteredStateName;
+    QMap<int, QPair<int, int> > m_buttonsStates;
 };
 
 #endif // FSM_H

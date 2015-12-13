@@ -3,6 +3,8 @@
 
 #include <QObject>
 #include <QTimer>
+#include <QMap>
+#include <QPair>
 #include "protocol_pc_to_device.h"
 
 class UartPort;
@@ -28,6 +30,7 @@ signals:
     void SIG_DEVICE_CLOSED();
     void SIG_HANDSHAKED();
     void SIG_DEVICE_NOT_ANSWER();
+    void buttonsState(QMap<int, QPair<int, int> > states);
 
 private slots:
     void parseData(const QByteArray &rawData);

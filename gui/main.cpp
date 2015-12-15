@@ -94,9 +94,6 @@ int main(int argc, char *argv[])
     QObject::connect(&pluginServer, SIGNAL(eventsGot(qint32, qint32)),
                      &pluginsManager, SLOT(processExternalEvents(qint32, qint32)));
 
-//    QObject::connect(&g_device, SIGNAL(buttonPressed(QString)),
-//                     &pluginsManager, SLOT(processButtonPressing(QString)));
-
     Settings settings;
     viewer.rootContext()->setContextProperty("Settings", &settings);
 

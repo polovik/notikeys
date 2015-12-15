@@ -211,7 +211,7 @@ Rectangle {
                 anchors.fill: parent
                 onClicked: {
                     console.log("Display settings")
-                    PluginsManager.activatePlugin("2") // TODO for testing only
+                    PluginsManager.activatePlugin("50") // TODO for testing only
                 }
             }
         }
@@ -370,6 +370,9 @@ Rectangle {
             break;
         }
         console.log("Button " + uid + " changed state to '" + st + "' at pos " + pos)
+        if (state === FSM.KEY_PRESSED) {
+            PluginsManager.processButtonPressing(uid)
+        }
     }
 
     Component.onCompleted: {

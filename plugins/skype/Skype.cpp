@@ -213,6 +213,7 @@ BOOL CALLBACK detectTray(HWND hwnd, LPARAM lParam)
 
 void Skype::handleButtonPressing()
 {
+#if defined(Q_OS_WIN)
     // Branch: HKEY_CURRENT_USER\Software\Skype\Phone Field: SkypePath
     QSettings skypeSettings("Skype", "Phone");
     QString exe = skypeSettings.value("SkypePath").toString();
@@ -220,6 +221,13 @@ void Skype::handleButtonPressing()
 
     bool started = QProcess::startDetached(exe);
     qDebug() << "Skype is maximized:" << started;
+#elif defined(Q_OS_LINUX)
+    QString cmd = "i3-msg \"workspace 3\""; // Just a sample for i3 Windows Manager
+    // This call produce JSON output like: [{"success":true}]
+    bool started = QProcess::startDetached(cmd);
+
+    qDebug() << "Skype is maximized:" << started;
+#endif
 
 #if 0
     m_hwndSkype = NULL;

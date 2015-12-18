@@ -44,6 +44,8 @@ public slots:
 signals:
     void deviceAppeared();
     void deviceDisappeared();
+    void SIG_DEVICE_ABSENT();
+    void SIG_CHECK_PRESENCE();
     void buttonStateChanged(int uid, buttonState state, int pos);
 
 private slots:
@@ -54,6 +56,7 @@ private slots:
 private:
     Device *m_device;
     QTimer m_openDeviceTimer;
+    QTimer m_devicePollingTimer;
     QTimer m_devicePresenceTimer;
     QTimer m_quitApplicationTimer;
 
@@ -61,6 +64,8 @@ private:
     QState *m_stateSTARTING;
     QState *m_stateFINDING_DEVICE;
     QState *m_stateHAND_SHAKING;
+    QState *m_stateWORKING_PHASE;
+    QState *m_statePOLLING;
     QState *m_stateREADY;
     QState *m_stateSTOP_DEVICE;
     QState *m_stateEXIT;

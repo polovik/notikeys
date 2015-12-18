@@ -11,17 +11,26 @@ FSM::FSM(QObject *parent) :
     m_device = new Device;
     connect(m_device, SIGNAL(buttonsState(QMap<int,QPair<int,int> >)), this, SLOT(notifyButtonsState(QMap<int,QPair<int,int> >)));
 
+    m_devicePresenceTimer.setInterval(1000);
+    connect(&m_devicePresenceTimer, SIGNAL(timeout()), SIGNAL(SIG_DEVICE_ABSENT()));
+    m_devicePollingTimer.setInterval(1000);
+    connect(&m_devicePollingTimer, SIGNAL(timeout()), SIGNAL(SIG_CHECK_PRESENCE()));
+
     m_machine = new QStateMachine;
     m_stateSTARTING = new QState;
     m_stateFINDING_DEVICE = new QState;
     m_stateHAND_SHAKING = new QState;
-    m_stateREADY = new QState;
+    m_stateWORKING_PHASE = new QState; // - Meta-State
+    m_statePOLLING = new QState(m_stateWORKING_PHASE);
+    m_stateREADY = new QState(m_stateWORKING_PHASE);
     m_stateSTOP_DEVICE = new QState;
     m_stateEXIT = new QState;
 
     m_stateSTARTING->assignProperty(&m_enteredStateName, "text", "STARTING");
     m_stateFINDING_DEVICE->assignProperty(&m_enteredStateName, "text", "FINDING_DEVICE");
     m_stateHAND_SHAKING->assignProperty(&m_enteredStateName, "text", "HAND_SHAKING");
+    m_stateWORKING_PHASE->assignProperty(&m_enteredStateName, "text", "WORKING_PHASE");
+    m_statePOLLING->assignProperty(&m_enteredStateName, "text", "POLLING");
     m_stateREADY->assignProperty(&m_enteredStateName, "text", "READY");
     m_stateSTOP_DEVICE->assignProperty(&m_enteredStateName, "text", "STOP_DEVICE");
     m_stateEXIT->assignProperty(&m_enteredStateName, "text", "EXIT");
@@ -52,14 +61,27 @@ FSM::FSM(QObject *parent) :
 
     //============= HAND_SHAKING ====================//
     connect(m_stateHAND_SHAKING, SIGNAL(entered()), m_device, SLOT(requestHandshake()));
-    m_stateHAND_SHAKING->addTransition(m_device, SIGNAL(SIG_HANDSHAKED()), m_stateREADY);
+    m_stateHAND_SHAKING->addTransition(m_device, SIGNAL(SIG_HANDSHAKED()), m_stateWORKING_PHASE);
     m_stateHAND_SHAKING->addTransition(m_transitionDeviceNotResponded);
 
+    //============= WORKING_PHASE ===================//
+    m_stateWORKING_PHASE->addTransition(m_device, SIGNAL(SIG_DEVICE_CLOSED()), m_stateFINDING_DEVICE);
+//    m_stateWORKING_PHASE->addTransition(m_guiMainWindow, SIGNAL(SIG_ABOUT_TO_QUIT()), m_stateSTOP_DEVICE);
+    connect(m_stateWORKING_PHASE, SIGNAL(entered()), SIGNAL(deviceAppeared()));
+    connect(m_stateWORKING_PHASE, SIGNAL(exited()), SIGNAL(deviceDisappeared()));
+    connect(m_stateWORKING_PHASE, SIGNAL(exited()), m_device, SLOT(closeDevice()));
+
+    //============= POLLING =========================//
+    m_statePOLLING->addTransition(m_device, SIGNAL(SIG_DEVICE_STATUS()), m_stateREADY);
+    m_statePOLLING->addTransition(this, SIGNAL(SIG_DEVICE_ABSENT()), m_stateFINDING_DEVICE);
+    connect(m_statePOLLING, SIGNAL(entered()), &m_devicePresenceTimer, SLOT(start()));
+    connect(m_statePOLLING, SIGNAL(entered()), m_device, SLOT(requestStatus()));
+    connect(m_statePOLLING, SIGNAL(exited()), &m_devicePresenceTimer, SLOT(stop()));
+
     //============= READY ===========================//
-    connect(m_stateREADY, SIGNAL(entered()), SIGNAL(deviceAppeared()));
-    m_stateREADY->addTransition(m_device, SIGNAL(SIG_DEVICE_CLOSED()), m_stateFINDING_DEVICE);
-    m_stateREADY->addTransition(m_transitionDeviceNotResponded);
-    connect(m_stateREADY, SIGNAL(exited()), SIGNAL(deviceDisappeared()));
+    m_stateREADY->addTransition(this, SIGNAL(SIG_CHECK_PRESENCE()), m_statePOLLING);
+    connect(m_stateREADY, SIGNAL(entered()), &m_devicePollingTimer, SLOT(start()));
+    connect(m_stateREADY, SIGNAL(exited()), &m_devicePollingTimer, SLOT(stop()));
 
     //============= STOP_DEVICE =====================//
     m_quitApplicationTimer.setInterval(1000);
@@ -74,10 +96,11 @@ FSM::FSM(QObject *parent) :
     m_machine->addState(m_stateSTARTING);
     m_machine->addState(m_stateFINDING_DEVICE);
     m_machine->addState(m_stateHAND_SHAKING);
-    m_machine->addState(m_stateREADY);
+    m_machine->addState(m_stateWORKING_PHASE);
     m_machine->addState(m_stateSTOP_DEVICE);
     m_machine->addState(m_stateEXIT);
 
+    m_stateWORKING_PHASE->setInitialState(m_statePOLLING);
     m_machine->setInitialState(m_stateFINDING_DEVICE);
 }
 

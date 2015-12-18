@@ -22,6 +22,7 @@ public slots:
     void openDevice();
     void closeDevice();
     void requestHandshake();
+    void requestStatus();
     void requestLedCotrol(quint8 pos, quint16 state);
     void requestReset();
 
@@ -30,6 +31,7 @@ signals:
     void SIG_DEVICE_CLOSED();
     void SIG_HANDSHAKED();
     void SIG_DEVICE_NOT_ANSWER();
+    void SIG_DEVICE_STATUS();
     void buttonsState(QMap<int, QPair<int, int> > states);
 
 private slots:

@@ -277,8 +277,8 @@ QByteArray UartPort::receiveData()
 void UartPort::closePort()
 {
     if (m_serialPort->portName().isEmpty()) {
-        qCritical() << "Try to close closed port";
-        Q_ASSERT(false);
+        qWarning() << "Try to close closed port";
+//        Q_ASSERT(false);
         return;
     }
 

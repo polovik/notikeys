@@ -87,7 +87,7 @@ QByteArray Device::assemblyPacket(packet_type_e command, const packet_data_u *da
     case GET_BUTTONS_STATE:
         break;
     case SET_LEDS_STATE:
-        dataFieldSize = sizeof(led_state_e);
+        dataFieldSize = sizeof(led_state_s);
         dataField = (char *)malloc(dataFieldSize);
         memcpy(dataField, &data->led_state, dataFieldSize);
         break;
@@ -224,6 +224,7 @@ bool Device::parsePacket()
         quint32 rtc = data->device_status.rtc;
         qDebug("Device status: errors 0x%04X, rtc %d",
                errors, rtc);
+        emit SIG_DEVICE_STATUS();
         break;
     }
     case GET_BUTTONS_STATE: {
@@ -251,6 +252,12 @@ void Device::requestHandshake()
 {
     QByteArray packet = assemblyPacket(GET_DEVICE_ID, NULL);
     m_deviceAnswerTimer.start();
+    m_uartPort->sendPacket(packet);
+}
+
+void Device::requestStatus()
+{
+    QByteArray packet = assemblyPacket(GET_STATUS, NULL);
     m_uartPort->sendPacket(packet);
 }
 

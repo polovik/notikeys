@@ -37,10 +37,11 @@
 #include "../../device/crc16.h"
 
 /** VARIABLES ******************************************************/
-
+#define READ_BUFFER_SIZE (5 * CDC_DATA_OUT_EP_SIZE)
 static button_state_s buttons_state[3];
-static uint8_t readBuffer[CDC_DATA_OUT_EP_SIZE];
 static uint8_t writeBuffer[CDC_DATA_IN_EP_SIZE];
+static uint8_t readBuffer[READ_BUFFER_SIZE];
+static uint16_t readPos = 0;
 
 /*********************************************************************
 * Function: void APP_DeviceCDCBasicDemoInitialize(void);
@@ -94,6 +95,11 @@ void assemblyPacket(packet_type_e command, const packet_data_u *data, uint8_t pa
         dataFieldSize = 8;
         memcpy(dataField, data->device_id, dataFieldSize);
         break;
+    case GET_STATUS: {
+        dataFieldSize = sizeof(device_status_s);
+        memcpy(dataField, &data->device_status, dataFieldSize);
+        break;
+    }
     case GET_BUTTONS_STATE:
         dataFieldSize = 3 * sizeof(button_state_s);
         memcpy(dataField, data->buttons_state, dataFieldSize);
@@ -156,6 +162,10 @@ bool parsePacket(const uint8_t *rawData, uint8_t rawDataSize, packet_type_e *typ
     switch (command) {
     case GET_DEVICE_ID: {
         *type = GET_DEVICE_ID;
+        break;
+    }
+    case GET_STATUS: {
+        *type = GET_STATUS;
         break;
     }
     case SET_LEDS_STATE: {
@@ -235,55 +245,73 @@ void APP_DeviceCDCBasicDemoTasks()
      */
     if( USBUSARTIsTxTrfReady() == true)
     {
-        uint8_t i;
-        uint8_t numBytesRead;
+        uint16_t i;
+        uint16_t validDataLen;
+        uint16_t numBytesRead;
         char deviceID[] = "Keys 011";
         char *e;
         packet_type_e type;
         uint8_t payload[MAX_DATA_SIZE];
         uint8_t payloadSize;
 
-        numBytesRead = getsUSBUSART(readBuffer, sizeof(readBuffer));
-        if (numBytesRead > 0) {
-            e = memchr(readBuffer, PREAMBLE, numBytesRead);
+        // Collect incoming data in read buffer. Bear in mind, buffer have to had ability receive whole CDC packet.
+        if ((readPos + CDC_DATA_OUT_EP_SIZE) >= sizeof(readBuffer)) {
+            e = memchr(readBuffer, PREAMBLE, sizeof(readBuffer));
+            // Wipe out trash before valid data
             if (e == 0) {
-                memcpy(writeBuffer, readBuffer, numBytesRead);
-                numBytesWrite = numBytesRead;
+                memset(readBuffer, 0x00, sizeof(readBuffer));
+                readPos = 0;
             } else {
-                i = (uint8_t)(e - readBuffer);
-                parsePacket(&readBuffer[i], numBytesRead - i, &type, payload, &payloadSize);
+                validDataLen = (uint16_t)(&readBuffer[sizeof(readBuffer)] - e);
+                memmove(readBuffer, e, validDataLen);
+                memset(&readBuffer[validDataLen], 0x00, sizeof(readBuffer) - validDataLen);
+                readPos = 0;
+            }
+        }
+        numBytesRead = getsUSBUSART(&readBuffer[readPos], CDC_DATA_OUT_EP_SIZE);
+        if (numBytesRead > 0) {
+            // Parse all collected incoming data
+            do {
+                e = memchr(readBuffer, PREAMBLE, sizeof(readBuffer));
+                if (e == 0) {
+                    break;
+                }
+                i = (uint16_t)(e - readBuffer);
+                parsePacket(&readBuffer[i], sizeof(readBuffer) - i, &type, payload, &payloadSize);
+                numBytesWrite = 0;
                 if (type == GET_DEVICE_ID) {
                     memset(&data, 0x00, sizeof(packet_data_u));
                     memcpy(data.device_id, deviceID, 8);
                     assemblyPacket(GET_DEVICE_ID, &data, packet, &packetSize);
                     memcpy(writeBuffer, packet, packetSize);
                     numBytesWrite = packetSize;
+                } else if (type == GET_STATUS) {
+                    memset(&data, 0x00, sizeof(packet_data_u));
+                    data.device_status.errors = ERROR_NONE;
+                    data.device_status.rtc = 0;
+                    assemblyPacket(GET_STATUS, &data, packet, &packetSize);
+                    memcpy(writeBuffer, packet, packetSize);
+                    numBytesWrite = packetSize;                    
                 } else if (type == SET_LEDS_STATE) {
                     led_state_s *led = (led_state_s *)payload;
                     if (led->pos != 0) {
-                        memcpy(writeBuffer, readBuffer, numBytesRead);
-                        numBytesWrite = numBytesRead;
+//                        memcpy(writeBuffer, &readBuffer[i], CDC_DATA_IN_EP_SIZE);
+//                        numBytesWrite = CDC_DATA_IN_EP_SIZE;
                     } else {
                         if (led->state == LED_TURN_ON) {
                             LED_On(LED_D2);
                         } else {
                             LED_Off(LED_D2);
                         }
-                        memset(&data, 0x00, sizeof(packet_data_u));
-                        memcpy(data.device_id, deviceID, 3);
-                        assemblyPacket(GET_DEVICE_ID, &data, packet, &packetSize);
-                        memcpy(writeBuffer, packet, packetSize);
-                        numBytesWrite = packetSize;
                     }
-                } else {
-                    memcpy(writeBuffer, readBuffer, numBytesRead);
-                    numBytesWrite = numBytesRead;
                 }
-            }
-
-            if (numBytesWrite > 0) {
-                putUSBUSART(writeBuffer, numBytesWrite);
-            }
+                // Clear packet's start marker - PREAMBLE
+                memset(&readBuffer[i], 0x00, 1);
+                // Send answer
+                if (numBytesWrite > 0) {
+                    putUSBUSART(writeBuffer, numBytesWrite);
+                }
+            } while (1);
         }
     }
 

@@ -46,6 +46,8 @@ signals:
     void deviceDisappeared();
     void SIG_DEVICE_ABSENT();
     void SIG_CHECK_PRESENCE();
+    void SIG_ABOUT_TO_QUIT();
+    void SIG_APPLICATION_FINISHED();
     void buttonStateChanged(int uid, buttonState state, int pos);
 
 private slots:
@@ -70,6 +72,7 @@ private:
     QState *m_stateSTOP_DEVICE;
     QState *m_stateEXIT;
     QSignalTransition *m_transitionDeviceNotResponded;
+    QSignalTransition *m_transitionDeviceAbsent;
 
     StateLogger m_enteredStateName;
     QMap<int, QPair<int, int> > m_buttonsStates;

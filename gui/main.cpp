@@ -88,6 +88,8 @@ int main(int argc, char *argv[])
     FSM *deviceFSM = new FSM();
     deviceFSM->setObjectName("DeviceFSM");
     viewer.rootContext()->setContextProperty("DeviceFSM", deviceFSM);
+    QObject::connect(&viewer, SIGNAL(aboutToClose()), deviceFSM, SIGNAL(SIG_ABOUT_TO_QUIT()));
+    QObject::connect(deviceFSM, SIGNAL(SIG_APPLICATION_FINISHED()), &viewer, SLOT(close()));
 
     ExternalPluginServer pluginServer;
     pluginServer.startServer();

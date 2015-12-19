@@ -66,14 +66,18 @@ FSM::FSM(QObject *parent) :
 
     //============= WORKING_PHASE ===================//
     m_stateWORKING_PHASE->addTransition(m_device, SIGNAL(SIG_DEVICE_CLOSED()), m_stateFINDING_DEVICE);
-//    m_stateWORKING_PHASE->addTransition(m_guiMainWindow, SIGNAL(SIG_ABOUT_TO_QUIT()), m_stateSTOP_DEVICE);
+    m_stateWORKING_PHASE->addTransition(this, SIGNAL(SIG_ABOUT_TO_QUIT()), m_stateSTOP_DEVICE);
     connect(m_stateWORKING_PHASE, SIGNAL(entered()), SIGNAL(deviceAppeared()));
     connect(m_stateWORKING_PHASE, SIGNAL(exited()), SIGNAL(deviceDisappeared()));
-    connect(m_stateWORKING_PHASE, SIGNAL(exited()), m_device, SLOT(closeDevice()));
+//    connect(m_stateWORKING_PHASE, SIGNAL(exited()), m_device, SLOT(closeDevice()));
 
     //============= POLLING =========================//
     m_statePOLLING->addTransition(m_device, SIGNAL(SIG_DEVICE_STATUS()), m_stateREADY);
-    m_statePOLLING->addTransition(this, SIGNAL(SIG_DEVICE_ABSENT()), m_stateFINDING_DEVICE);
+    m_transitionDeviceAbsent = new QSignalTransition();
+    m_transitionDeviceAbsent->setSenderObject(this);
+    m_transitionDeviceAbsent->setSignal(SIGNAL(SIG_DEVICE_ABSENT()));
+    m_transitionDeviceAbsent->setTargetState(m_stateFINDING_DEVICE);
+    connect(m_transitionDeviceAbsent, SIGNAL(triggered()), m_device, SLOT(closeDevice()));
     connect(m_statePOLLING, SIGNAL(entered()), &m_devicePresenceTimer, SLOT(start()));
     connect(m_statePOLLING, SIGNAL(entered()), m_device, SLOT(requestStatus()));
     connect(m_statePOLLING, SIGNAL(exited()), &m_devicePresenceTimer, SLOT(stop()));
@@ -91,7 +95,7 @@ FSM::FSM(QObject *parent) :
 
     //============= EXIT ============================//
     connect(m_stateEXIT, SIGNAL(entered()), m_device, SLOT(closeDevice()));
-//    connect(m_stateEXIT, SIGNAL(entered()), m_guiMainWindow, SLOT(close()));
+    connect(m_stateEXIT, SIGNAL(entered()), this, SIGNAL(SIG_APPLICATION_FINISHED()));
 
     m_machine->addState(m_stateSTARTING);
     m_machine->addState(m_stateFINDING_DEVICE);

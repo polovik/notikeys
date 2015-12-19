@@ -26,8 +26,15 @@ public:
 
     void showExpanded();
 
+signals:
+    void aboutToClose();
+
+protected:
+    virtual bool event(QEvent *ev);
+
 private:
     class QtQuick2ApplicationViewerPrivate *d;
+    bool m_readyToExit;
 };
 
 #endif // QTQUICK2APPLICATIONVIEWER_H

@@ -273,7 +273,7 @@ void Device::requestLedCotrol(quint8 pos, quint16 state)
 
 void Device::requestReset()
 {
-//    QString command = QString("reset");
-//    m_uartPort->sendPacket(command.toLatin1());
+    QString command = QString("reset");
+    m_uartPort->sendPacket(command.toLatin1());
 }
 

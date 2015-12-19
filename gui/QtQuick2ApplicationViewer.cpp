@@ -13,6 +13,7 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDir>
 #include <QtQml/QQmlEngine>
+#include <QDebug>
 
 class QtQuick2ApplicationViewerPrivate
 {
@@ -49,6 +50,7 @@ QtQuick2ApplicationViewer::QtQuick2ApplicationViewer(QWindow *parent)
 {
     connect(engine(), SIGNAL(quit()), SLOT(close()));
     setResizeMode(QQuickView::SizeRootObjectToView);
+    m_readyToExit = false;
 }
 
 QtQuick2ApplicationViewer::~QtQuick2ApplicationViewer()
@@ -78,4 +80,18 @@ void QtQuick2ApplicationViewer::showExpanded()
 #else
     show();
 #endif
+}
+
+bool QtQuick2ApplicationViewer::event(QEvent *ev)
+{
+    if (ev->type() == QEvent::Close) {
+        qDebug() << "Main window has just started to closing";
+        if (!m_readyToExit) {
+            m_readyToExit = true;
+            ev->accept();
+            emit aboutToClose();
+            return true;
+        }
+    }
+    return QQuickView::event(ev);
 }

@@ -56,13 +56,13 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 // *****************************************************************************
 #define LED_D1_LAT LATCbits.LATC1
 #define LED_D2_LAT LATCbits.LATC2
-#define LED_D3_LAT LATCbits.LATC1
-#define LED_D4_LAT LATCbits.LATC1
+#define LED_D3_LAT LATBbits.LATB0
+#define LED_D4_LAT LATBbits.LATB1
 
 #define LED_D1_TRIS TRISCbits.TRISC1
 #define LED_D2_TRIS TRISCbits.TRISC2
-#define LED_D3_TRIS TRISCbits.TRISC1
-#define LED_D4_TRIS TRISCbits.TRISC1
+#define LED_D3_TRIS TRISBbits.TRISB0
+#define LED_D4_TRIS TRISBbits.TRISB1
 
 #define LED_ON  1
 #define LED_OFF 0

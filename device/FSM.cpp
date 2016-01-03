@@ -123,6 +123,8 @@ void FSM::indicateDeviceDetection()
 {
     //  Make common enum for protocol and Plugins
     m_device->requestLedCotrol(0, 0x0101);
+    m_device->requestLedCotrol(1, 0x0101);
+    m_device->requestLedCotrol(2, 0x0101);
 }
 
 void FSM::notifyButtonsState(QMap<int, QPair<int, int> > states)

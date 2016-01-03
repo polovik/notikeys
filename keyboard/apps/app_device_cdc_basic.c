@@ -294,15 +294,20 @@ void APP_DeviceCDCBasicDemoTasks()
                     numBytesWrite = packetSize;                    
                 } else if (type == SET_LEDS_STATE) {
                     led_state_s *led = (led_state_s *)payload;
-                    if (led->pos != 0) {
-//                        memcpy(writeBuffer, &readBuffer[i], CDC_DATA_IN_EP_SIZE);
-//                        numBytesWrite = CDC_DATA_IN_EP_SIZE;
-                    } else {
-                        if (led->state == LED_TURN_ON) {
+                    if (led->state == LED_TURN_ON) {
+                        if (led->pos == 0)
                             LED_On(LED_D2);
-                        } else {
+                        if (led->pos == 1)
+                            LED_On(LED_D3);
+                        if (led->pos == 2)
+                            LED_On(LED_D4);
+                    } else {
+                        if (led->pos == 0)
                             LED_Off(LED_D2);
-                        }
+                        if (led->pos == 1)
+                            LED_Off(LED_D3);
+                        if (led->pos == 2)
+                            LED_Off(LED_D4);
                     }
                 }
                 // Clear packet's start marker - PREAMBLE

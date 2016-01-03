@@ -85,6 +85,8 @@ void SYSTEM_Initialize( SYSTEM_STATE state )
         case SYSTEM_STATE_USB_START:
             LED_Enable(LED_USB_DEVICE_STATE);
             LED_Enable(LED_D2);
+            LED_Enable(LED_D3);
+            LED_Enable(LED_D4);
             BUTTON_Enable(BUTTON_S1);
             BUTTON_Enable(BUTTON_S2);
             BUTTON_Enable(BUTTON_S3);

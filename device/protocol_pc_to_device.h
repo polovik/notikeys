@@ -43,6 +43,9 @@ typedef enum {
     //  Settings
     SET_SETTINGS                = 0x30,
     GET_SETTINGS                = 0x31,
+
+    //  Reset device's state (e.g. when configuration is finished)
+    RESET_DEVICE                = 0x40
 } packet_type_e;
 
 enum device_errors_e {
@@ -105,6 +108,9 @@ typedef union {
     //  Settings
     // SET_SETTINGS
     // GET_SETTINGS
+
+    //  Reset
+    // RESET_DEVICE
 } packet_data_u;
 
 //  HEADER format

@@ -85,6 +85,7 @@ QByteArray Device::assemblyPacket(packet_type_e command, const packet_data_u *da
     case GET_DEVICE_ID:
     case GET_STATUS:
     case GET_BUTTONS_STATE:
+    case RESET_DEVICE:
         break;
     case SET_LEDS_STATE:
         dataFieldSize = sizeof(led_state_s);
@@ -273,7 +274,7 @@ void Device::requestLedCotrol(quint8 pos, quint16 state)
 
 void Device::requestReset()
 {
-    QString command = QString("reset");
-    m_uartPort->sendPacket(command.toLatin1());
+    QByteArray packet = assemblyPacket(RESET_DEVICE, NULL);
+    m_uartPort->sendPacket(packet);
 }
 

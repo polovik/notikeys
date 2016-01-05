@@ -45,6 +45,14 @@ bool ExternalPluginServer::startServer()
     return true;
 }
 
+void ExternalPluginServer::stopServer()
+{
+    if (m_server->removeServer(SERVER_SOCKET_NAME) != true) {
+        qCritical() << "Can't remove old file socket" << SERVER_SOCKET_NAME;
+        qCritical() << "Error:" << m_server->errorString();
+    }
+}
+
 void ExternalPluginServer::storeNewConnection()
 {
     qDebug() << "Plugin is requesting connection";

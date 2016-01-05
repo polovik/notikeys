@@ -174,6 +174,10 @@ bool parsePacket(const uint8_t *rawData, uint8_t rawDataSize, packet_type_e *typ
         memcpy(payload, &data->led_state, *payloadSize);
         break;
     }
+    case RESET_DEVICE: {
+        *type = RESET_DEVICE;
+        break;
+    }
     }
     return true;
 }
@@ -309,6 +313,15 @@ void APP_DeviceCDCBasicDemoTasks()
                         if (led->pos == 2)
                             LED_Off(LED_D4);
                     }
+                } else if (type == RESET_DEVICE) {
+                    LED_Off(LED_D2);
+                    LED_Off(LED_D3);
+                    LED_Off(LED_D4);
+                    memset(readBuffer, 0x00, sizeof(readBuffer));
+                    readPos = 0;
+                } else {
+                    memcpy(writeBuffer, &readBuffer[i], 20);
+                    numBytesWrite = 20;
                 }
                 // Clear packet's start marker - PREAMBLE
                 memset(&readBuffer[i], 0x00, 1);

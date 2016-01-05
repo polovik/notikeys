@@ -16,6 +16,7 @@ public:
 
 public slots:
     bool startServer();
+    void stopServer();
 
 private slots:
     void storeNewConnection();

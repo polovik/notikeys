@@ -89,12 +89,14 @@ int main(int argc, char *argv[])
     deviceFSM->setObjectName("DeviceFSM");
     viewer.rootContext()->setContextProperty("DeviceFSM", deviceFSM);
     QObject::connect(&viewer, SIGNAL(aboutToClose()), deviceFSM, SIGNAL(SIG_ABOUT_TO_QUIT()));
-    QObject::connect(deviceFSM, SIGNAL(SIG_APPLICATION_FINISHED()), &viewer, SLOT(close()));
 
     ExternalPluginServer pluginServer;
     pluginServer.startServer();
     QObject::connect(&pluginServer, SIGNAL(eventsGot(qint32, qint32)),
                      &pluginsManager, SLOT(processExternalEvents(qint32, qint32)));
+
+    QObject::connect(deviceFSM, SIGNAL(SIG_APPLICATION_FINISHED()), &pluginServer, SLOT(stopServer()));
+    QObject::connect(deviceFSM, SIGNAL(SIG_APPLICATION_FINISHED()), &viewer, SLOT(close()));
 
     Settings settings;
     viewer.rootContext()->setContextProperty("Settings", &settings);

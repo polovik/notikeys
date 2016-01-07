@@ -203,44 +203,52 @@ void APP_DeviceCDCBasicDemoTasks()
     uint8_t packetSize;
     packet_data_u data;
 
-    bool button1IsPressed = BUTTON_IsPressed(BUTTON_S1);
-    bool button2IsPressed = BUTTON_IsPressed(BUTTON_S2);
-    bool button3IsPressed = BUTTON_IsPressed(BUTTON_S3);
+    /* Make sure that the CDC driver is ready for a transmission.
+     */
+    if (mUSBUSARTIsTxTrfReady() == true) {
+        uint16_t value;
+        uint32_t percent;
+        button_state_s cur_state[3];
+
+        memset(cur_state, 0x00, 3 * sizeof(button_state_s));
+
+        bool button1IsPressed = BUTTON_IsPressed(BUTTON_S1);
+        bool button2IsPressed = BUTTON_IsPressed(BUTTON_S2);
+        bool button3IsPressed = BUTTON_IsPressed(BUTTON_S3);
     
-    bool button1WasPressed = (buttons_state[0].state & BUTTON_PRESSED) ? true : false;
-    bool button2WasPressed = (buttons_state[1].state & BUTTON_PRESSED) ? true : false;
-    bool button3WasPressed = (buttons_state[2].state & BUTTON_PRESSED) ? true : false;
+        value = ADC_Read10bit(ADC_CHANNEL_1);
+        percent = ((uint32_t)100 * value) / 0x03FF;
+        cur_state[0].pos = 0;
+        cur_state[0].state = button1IsPressed ? BUTTON_PRESSED : BUTTON_RELEASED;
+        cur_state[0].state |= ((percent >= 95) ? BUTTON_UNMOUNTED : BUTTON_MOUNTED);
+        cur_state[0].uid = percent;
 
-    if ((button1IsPressed != button1WasPressed) || (button2IsPressed != button2WasPressed) || (button3IsPressed != button3WasPressed)) {
-        /* Make sure that the CDC driver is ready for a transmission.
-         */
-        if (mUSBUSARTIsTxTrfReady() == true) {
-            uint16_t value;
-            uint32_t percent;
-            value = ADC_Read10bit(ADC_CHANNEL_1);
-            percent = ((uint32_t)100 * value) / 0x03FF;
-            buttons_state[0].state = button1IsPressed ? BUTTON_PRESSED : BUTTON_RELEASED;
-            buttons_state[0].uid = percent;
+        value = ADC_Read10bit(ADC_CHANNEL_2);
+        percent = ((uint32_t)100 * value) / 0x03FF;
+        cur_state[1].pos = 1;
+        cur_state[1].state = button2IsPressed ? BUTTON_PRESSED : BUTTON_RELEASED;
+        cur_state[1].state |= ((percent >= 95) ? BUTTON_UNMOUNTED : BUTTON_MOUNTED);
+        cur_state[1].uid = percent;
 
-            value = ADC_Read10bit(ADC_CHANNEL_2);
-            percent = ((uint32_t)100 * value) / 0x03FF;
-            buttons_state[1].state = button2IsPressed ? BUTTON_PRESSED : BUTTON_RELEASED;
-            buttons_state[1].uid = percent;
+        value = ADC_Read10bit(ADC_CHANNEL_3);
+        percent = ((uint32_t)100 * value) / 0x03FF;
+        cur_state[2].pos = 2;
+        cur_state[2].state = button3IsPressed ? BUTTON_PRESSED : BUTTON_RELEASED;
+        cur_state[2].state |= ((percent >= 95) ? BUTTON_UNMOUNTED : BUTTON_MOUNTED);
+        cur_state[2].uid = percent;
 
-            value = ADC_Read10bit(ADC_CHANNEL_3);
-            percent = ((uint32_t)100 * value) / 0x03FF;
-            buttons_state[2].state = button3IsPressed ? BUTTON_PRESSED : BUTTON_RELEASED;
-            buttons_state[2].uid = percent;
-
+        if ((buttons_state[0].state != cur_state[0].state) || (buttons_state[1].state != cur_state[1].state) || (buttons_state[2].state != cur_state[2].state)) {
             memset(&data, 0x00, sizeof(packet_data_u));
-            memcpy(data.buttons_state, buttons_state, 3 * sizeof(button_state_s));
+            memcpy(data.buttons_state, cur_state, 3 * sizeof(button_state_s));
             assemblyPacket(GET_BUTTONS_STATE, &data, packet, &packetSize);
             memcpy(writeBuffer, packet, packetSize);
             numBytesWrite = packetSize;
-            
+
             if (numBytesWrite > 0) {
                 putUSBUSART(writeBuffer, numBytesWrite);
             }
+            
+            memcpy(buttons_state, cur_state, 3 * sizeof(button_state_s));
         }
     }
 

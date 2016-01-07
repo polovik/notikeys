@@ -59,10 +59,10 @@ typedef struct {
 } PACKED device_status_s;
 
 enum button_state_e {
-    BUTTON_UNMOUNTED            = 0x00,
-    BUTTON_MOUNTED              = 0x01,
-    BUTTON_PRESSED              = 0x02,
-    BUTTON_RELEASED             = 0x04,
+    BUTTON_UNMOUNTED            = 0x01,
+    BUTTON_MOUNTED              = 0x02,
+    BUTTON_PRESSED              = 0x04,
+    BUTTON_RELEASED             = 0x08,
 };
 
 typedef struct {

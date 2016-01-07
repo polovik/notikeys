@@ -148,19 +148,19 @@ void FSM::notifyButtonsState(QMap<int, QPair<int, int> > states)
         }
         if (state != prevState) {
             // Connect button
-            if (state == BUTTON_MOUNTED) {
+            if (state & BUTTON_MOUNTED) {
                 emit buttonStateChanged(uid, KEY_CONNECTED, pos);
             }
             // Disconnect button
-            if (state == BUTTON_UNMOUNTED) {
+            if (state & BUTTON_UNMOUNTED) {
                 emit buttonStateChanged(prevUid, KEY_DISCONNECTED, pos);
             }
             // Button has just pressed
-            if (state == BUTTON_PRESSED) {
+            if (state & BUTTON_PRESSED) {
                 emit buttonStateChanged(uid, KEY_PRESSED, pos);
             }
             // Button has just released
-            if (state == BUTTON_RELEASED) {
+            if (state & BUTTON_RELEASED) {
                 emit buttonStateChanged(uid, KEY_RELEASED, pos);
             }
         }

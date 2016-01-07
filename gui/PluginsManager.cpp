@@ -115,6 +115,7 @@ bool PluginsManager::loadPlugins()
                     info->m_uid = uid;
                     info->m_name = title;
                     info->m_settingsScreenPath = fi.absoluteFilePath();
+                    info->setPos(-1);
                     info->m_metaData = metaData;
                     info->m_translator = new QTranslator();
                     m_plugins.insert(uid, info);
@@ -146,7 +147,7 @@ void PluginsManager::stopPlugins()
     }
 }
 
-void PluginsManager::activatePlugin(QString uid)
+void PluginsManager::activatePlugin(QString uid, int pos)
 {
     if (!m_plugins.contains(uid)) {
         qCritical() << "Request to unloaded plugin" << uid;
@@ -155,8 +156,28 @@ void PluginsManager::activatePlugin(QString uid)
     }
 
     PluginInfo *info = m_plugins.value(uid);
+    qDebug() << "Activate plugin" << info->m_name;
     info->setActive(true);
+    info->setPos(pos);
     info->m_plugin->start();
+    updatePluginsModel();
+}
+
+void PluginsManager::deactivatePlugin(QString uid, int pos)
+{
+	// TODO in some cases uid may be invalid, therefore deactivate by pos
+    Q_UNUSED(pos);
+    if (!m_plugins.contains(uid)) {
+        qWarning() << "Request to unloaded plugin" << uid << "at pos" << pos;
+//        Q_ASSERT(false);
+        return;
+    }
+
+    PluginInfo *info = m_plugins.value(uid);
+    qDebug() << "Deactivate plugin" << info->m_name;
+    info->setActive(false);
+    info->setPos(-1);
+    info->m_plugin->stop();
     updatePluginsModel();
 }
 
@@ -244,10 +265,28 @@ void PluginsManager::processButtonPressing(QString pluginUid)
 
 void PluginsManager::updatePluginsModel()
 {
+    static PluginInfo emptySlot; // TODO create constructor for prevent filling info on each enter
+    emptySlot.setActive(false);
+    emptySlot.m_name = "Empty slot";
+    emptySlot.setPos(-1);
+
     QList<QObject*> pluginsList;
+    qDebug() << "Refresh list of displayed plugins";
+    int slot = 0;
     foreach (const QString &uid, m_plugins.keys()) {
-        pluginsList.append(m_plugins.value(uid));
+        PluginInfo *info = m_plugins.value(uid);
+        if (info->pos() == -1) {
+            continue;
+        }
+        qDebug() << "Add plugin" << info->name() << "to slot" << info->pos();
+        while (slot < info->pos()) {
+            pluginsList.append(info);//&emptySlot
+            slot++;
+        }
+        pluginsList.append(info);
+        slot++;
     }
+    qDebug() << "Number of displayed plugins:" << pluginsList.size();
     m_qmlContext->setContextProperty("pluginsModel", QVariant::fromValue(pluginsList));
 }
 

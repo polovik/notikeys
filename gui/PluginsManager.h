@@ -17,12 +17,19 @@ class PluginInfo : public QObject
     Q_PROPERTY(QString name READ name)
     Q_PROPERTY(QString settingsScreenPath READ settingsScreenPath)
     Q_PROPERTY(bool active READ active WRITE setActive NOTIFY activeChanged)
+    Q_PROPERTY(int pos READ pos WRITE setPos)
 
 public:
     bool active() const
     { return m_active; }
     void setActive(bool active)
     { m_active = active; }
+    int pos() const
+    { return m_pos; }
+    void setPos(int pos)
+    { m_pos = pos; }
+    QString name() const
+    { return m_name; }
 
     PluginInterface *m_plugin;
     QString m_absoluteFilePath;
@@ -39,12 +46,11 @@ signals:
 private:
     QString uid() const
     { return m_uid; }
-    QString name() const
-    { return m_name; }
     QString settingsScreenPath() const
     { return m_settingsScreenPath; }
 
     bool m_active;
+    int m_pos;
 };
 
 class PluginsManager : public QObject
@@ -58,7 +64,8 @@ public slots:
     bool loadPlugins();
     void startActivePlugins();
     void stopPlugins();
-    void activatePlugin(QString uid);
+    void activatePlugin(QString uid, int pos);
+    void deactivatePlugin(QString uid, int pos);
     void loadLanguage(QString lang);
     void processExternalEvents(qint32 pluginUid, qint32 eventsCount);
     void processButtonPressing(QString pluginUid);

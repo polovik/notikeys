@@ -13,7 +13,7 @@ FSM::FSM(QObject *parent) :
 
     m_devicePresenceTimer.setInterval(1000);
     connect(&m_devicePresenceTimer, SIGNAL(timeout()), SIGNAL(SIG_DEVICE_ABSENT()));
-    m_devicePollingTimer.setInterval(1000);
+    m_devicePollingTimer.setInterval(10000);
     connect(&m_devicePollingTimer, SIGNAL(timeout()), SIGNAL(SIG_CHECK_PRESENCE()));
 
     m_machine = new QStateMachine;

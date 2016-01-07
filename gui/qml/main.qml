@@ -211,7 +211,6 @@ Rectangle {
                 anchors.fill: parent
                 onClicked: {
                     console.log("Display settings")
-                    PluginsManager.activatePlugin("50") // TODO for testing only
                 }
             }
         }
@@ -372,6 +371,12 @@ Rectangle {
         console.log("Button " + uid + " changed state to '" + st + "' at pos " + pos)
         if (state === FSM.KEY_PRESSED) {
             PluginsManager.processButtonPressing(uid)
+        }
+        if (state === FSM.KEY_CONNECTED) {
+            PluginsManager.activatePlugin(uid, pos)
+        }
+        if (state === FSM.KEY_DISCONNECTED) {
+            PluginsManager.deactivatePlugin(uid, pos)
         }
     }
 

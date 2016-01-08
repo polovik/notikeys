@@ -165,7 +165,7 @@ void PluginsManager::activatePlugin(QString uid, int pos)
 
 void PluginsManager::deactivatePlugin(QString uid, int pos)
 {
-	// TODO in some cases uid may be invalid, therefore deactivate by pos
+    // TODO in some cases uid may be invalid, therefore deactivate by pos. todo don't warn about -1 uid at pos
     Q_UNUSED(pos);
     if (!m_plugins.contains(uid)) {
         qWarning() << "Request to unloaded plugin" << uid << "at pos" << pos;
@@ -265,11 +265,6 @@ void PluginsManager::processButtonPressing(QString pluginUid)
 
 void PluginsManager::updatePluginsModel()
 {
-    static PluginInfo emptySlot; // TODO create constructor for prevent filling info on each enter
-    emptySlot.setActive(false);
-    emptySlot.m_name = "Empty slot";
-    emptySlot.setPos(-1);
-
     QList<QObject*> pluginsList;
     qDebug() << "Refresh list of displayed plugins";
     int slot = 0;
@@ -280,11 +275,27 @@ void PluginsManager::updatePluginsModel()
         }
         qDebug() << "Add plugin" << info->name() << "to slot" << info->pos();
         while (slot < info->pos()) {
-            pluginsList.append(info);//&emptySlot
             slot++;
+            if (!m_plugins.contains("VIRTUAL_-1")) {
+                qWarning() << "Plugin for display empty slot is missed";
+                continue;
+            }
+            PluginInfo *info = m_plugins.value("VIRTUAL_-1");
+            info->setActive(true);
+            pluginsList.append(info);
         }
         pluginsList.append(info);
         slot++;
+    }
+    while (slot < 3) {
+        slot++;
+        if (!m_plugins.contains("VIRTUAL_-1")) {
+            qWarning() << "Plugin for display empty slot is missed";
+            continue;
+        }
+        PluginInfo *info = m_plugins.value("VIRTUAL_-1");
+        info->setActive(true);
+        pluginsList.append(info);
     }
     qDebug() << "Number of displayed plugins:" << pluginsList.size();
     m_qmlContext->setContextProperty("pluginsModel", QVariant::fromValue(pluginsList));

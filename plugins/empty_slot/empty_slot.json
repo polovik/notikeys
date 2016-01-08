@@ -1,0 +1,11 @@
+{
+    "UID": "VIRTUAL_-1",
+    "name": "Empty",
+    "version": "0.1",
+    "description": "Stub for display that noone button is mounted to a slot",
+    "authors": "Dmitry Valento",
+    "dependencies": [],
+    "logo": "empty.png",
+    "settings": "Settings.qml",
+    "translations": ["langs/lang_ru_RU.qm"]
+}
